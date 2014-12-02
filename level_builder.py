@@ -4,8 +4,9 @@ import astar
 
 class LevelBuilder():
 	
-	def __init__(self, walls, guards, player):
+	def __init__(self, floor_img, walls, guards, player):
 		self.walls = walls
+		self.floor_img = floor_img
 		self.guards = guards
 		for i in range(len(self.guards)):
 			self.guards[i].level = self
@@ -19,12 +20,26 @@ class LevelBuilder():
 			guard.update(self.player.playerRect)
 
 	def draw(self, screen):
-		gray = (51,51,51)
+		screen.blit(self.floor_img, (0,0))
 		self.player.draw(screen)
 		for guard in self.guards:
 			guard.draw(screen)
+
+		x=0
 		for wall in self.walls:
-			pygame.draw.rect(screen, gray, wall)
+			#when the wall is wider than it is long, so that the brick pattern still works
+			if(wall.right-wall.left>32):
+				for i in range(wall.left-32, wall.right-32, 32):
+					screen.blit(pygame.image.load("res/wall_horizontal.jpg").convert_alpha(), (wall.left+x, wall.top))
+					x+=32
+					
+			#when the wall is longer than it is wide
+			if(wall.bottom-wall.top > 32):
+				for i in range(wall.top-32, wall.bottom-32, 32):
+					screen.blit(pygame.image.load("res/wall_vertical.jpg").convert_alpha(), (wall.left, wall.top+x))
+					x+=32
+			x=0
+			#pygame.draw.rect(screen, (51,51,51), wall)
 			
 	def getRectGrid(self):
 		"""Returns a 64x48 matrix of 0s and 1s, where 1s denote the presence of a wall"""

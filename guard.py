@@ -354,5 +354,3 @@ class Guard:
 		if self.checkCollision(playerRect) and not self.searching:
 			self.searching = True
 			self.star.startPath((int(self.guardRect.center[1] / 32), int(self.guardRect.center[0] / 32)), (int(playerRect.center[1] / 32), int(playerRect.center[0] / 32)))
-
-		print(self.path)
