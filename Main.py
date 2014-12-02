@@ -58,7 +58,8 @@ guards.append(Guard([100,200], path2, None))
 guards.append(Guard([32,200], path3, None))
 guards.append(Guard([300,200], path4, None))
 
-level_one = LevelBuilder(rectForWalls, guards, player)
+
+level_one = LevelBuilder(pygame.image.load("res/background-img.jpg").convert_alpha(), rectForWalls, guards, player)
 
 pygame.font.init()
 font = pygame.font.SysFont('timesnewroman', 100)
@@ -79,8 +80,6 @@ while playing == True:
 	for event in pygame.event.get():
 		if event.type == pygame.QUIT:
 			sys.exit()
-			quit
-			exit
 		if event.type == pygame.KEYDOWN:
 			if event.key == pygame.K_ESCAPE:
 				playing = False
@@ -121,14 +120,14 @@ while playing == True:
 		for body in bodies:
 			body.update((0, 0))
 			
-
 	#make screen black(erase screen)
 	screen.fill((0,0,0))
+
+	level_one.draw(screen)
 
 	#draw everything
 	for body in bodies:
 		body.draw(screen)
-	level_one.draw(screen)
 
 
 	if keys['SPACE']:
