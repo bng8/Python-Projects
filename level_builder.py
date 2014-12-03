@@ -1,6 +1,7 @@
 import pygame
 import time
 import astar
+from body import Body
 
 class LevelBuilder():
 	
@@ -23,6 +24,16 @@ class LevelBuilder():
 			guard.update(self.player.playerRect)
 		for body in self.bodies:
 			body.update((0, 0))
+
+		#check for if the player kills a guard
+		for i in range(len(self.guards)):
+			#if rects collide(will change when we have attack animation)
+			if self.player.playerRect.colliderect(self.guards[i].guardRect) and self.player.attacking:
+				#get the guard/remove it
+				tmp = self.guards.pop(i)
+				#add body in guards position
+				self.bodies.append(Body(tmp.pos, tmp.theta))
+				break
 
 	def draw(self, screen):
 		screen.blit(self.floor_img, (0,0))
@@ -63,12 +74,36 @@ class LevelBuilder():
 				for j in range(-1, (bottom_coordinate-top_coordinate)+1):
 					if top_coordinate + j>= 0 and top_coordinate+j<=23:
 						GridList[top_coordinate + j][i] = 1
-				
+			
 			for i in range(top_coordinate, bottom_coordinate):
 				for j in range(-1, (right_coordinate-left_coordinate)+1):
 					if left_coordinate+j >= 0 and left_coordinate+j<=31:
 						GridList[i][left_coordinate+j] = 1
-				
+
+			if bottom_coordinate - top_coordinate > right_coordinate - left_coordinate:
+				if 0 < (bottom_coordinate) < 24 and 0 < right_coordinate - 1 < 31:
+					GridList[bottom_coordinate][left_coordinate - 1] = 1
+				if 0 < (bottom_coordinate) < 24 and 0 < right_coordinate + 1 < 31:
+					GridList[bottom_coordinate][left_coordinate + 1] = 1
+
+				if 0 < (top_coordinate) < 24 and 0 < right_coordinate - 1 < 31:
+					GridList[bottom_coordinate][left_coordinate - 1] = 1
+				if 0 < (top_coordinate) < 24 and 0 < right_coordinate + 1 < 31:
+					GridList[top_coordinate][left_coordinate + 1] = 1
+			
+			else:
+				if 0 < (bottom_coordinate - 2) < 24 and 0 < left_coordinate - 1< 31:
+					GridList[bottom_coordinate - 2][left_coordinate - 1] = 1
+				if 0 < (bottom_coordinate) < 24 and 0 < left_coordinate  - 1< 31:
+					GridList[bottom_coordinate][left_coordinate - 1] = 1
+
+				if 0 < (bottom_coordinate - 2) < 24 and 0 < right_coordinate < 31:
+					GridList[bottom_coordinate - 2][right_coordinate] = 1
+				if 0 < (bottom_coordinate) < 24 and 0 < right_coordinate  < 31:
+					GridList[bottom_coordinate][right_coordinate] = 1
+
+
+			
 		return GridList
 
 #path finding test(IGNORE)
