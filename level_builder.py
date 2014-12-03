@@ -13,14 +13,23 @@ class LevelBuilder():
 			self.guards[i].initAStar()
 		self.player = player
 		self.player.level = self
+		self.wallImgVert= pygame.image.load("res/wall_vertical.jpg").convert_alpha()
+		self.wallImgHor = pygame.transform.rotate(self.wallImgVert, 90)
+		self.bodies = []
 
 	def update(self, keys):
 		self.player.update(keys)
 		for guard in self.guards:
 			guard.update(self.player.playerRect)
+		for body in self.bodies:
+			body.update((0, 0))
 
 	def draw(self, screen):
 		screen.blit(self.floor_img, (0,0))
+
+		for body in self.bodies:
+			body.draw(screen)
+
 		self.player.draw(screen)
 		for guard in self.guards:
 			guard.draw(screen)
@@ -30,15 +39,16 @@ class LevelBuilder():
 			#when the wall is wider than it is long, so that the brick pattern still works
 			if(wall.right-wall.left>32):
 				for i in range(wall.left-32, wall.right-32, 32):
-					screen.blit(pygame.image.load("res/wall_horizontal.jpg").convert_alpha(), (wall.left+x, wall.top))
+					screen.blit(self.wallImgHor, (wall.left+x, wall.top))
 					x+=32
 					
 			#when the wall is longer than it is wide
 			if(wall.bottom-wall.top > 32):
 				for i in range(wall.top-32, wall.bottom-32, 32):
-					screen.blit(pygame.image.load("res/wall_vertical.jpg").convert_alpha(), (wall.left, wall.top+x))
+					screen.blit(self.wallImgVert, (wall.left, wall.top+x))
 					x+=32
 			x=0
+			pygame.draw.rect(screen, (0, 0, 0), wall, 3)
 			#pygame.draw.rect(screen, (51,51,51), wall)
 			
 	def getRectGrid(self):

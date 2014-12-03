@@ -33,7 +33,7 @@ pygame.event.set_grab(True)
 pygame.mouse.set_visible(False)
 
 rectForWalls = []
-rectForWalls = [pygame.Rect((32,320,368,32)), pygame.Rect((352,32,32,192)),
+rectForWalls = [pygame.Rect((32,320,352,32)), pygame.Rect((352,32,32,192)),
 			pygame.Rect((528,32,32,416)), pygame.Rect((702,432,290,32))]
 
 rectForWalls.append(pygame.Rect(0,0,size[0], 32))
@@ -110,25 +110,18 @@ while playing == True:
 			#get the guard/remove it
 			tmp = guards.pop(i)
 			#add body in guards position
-			bodies.append(Body(tmp.pos, tmp.theta))
+			level_one.bodies.append(Body(tmp.pos, tmp.theta))
 			break
 
 
 	#update everything if not paused
 	if not keys['SPACE']:
 		level_one.update(keys)
-		for body in bodies:
-			body.update((0, 0))
 			
 	#make screen black(erase screen)
 	screen.fill((0,0,0))
 
 	level_one.draw(screen)
-
-	#draw everything
-	for body in bodies:
-		body.draw(screen)
-
 
 	if keys['SPACE']:
 		screen.blit(pausedText, (320,300))
@@ -145,7 +138,7 @@ while playing == True:
 		print(timeSlept)
 		timeSlept = 0
 	'''
-	#print(TIME_PER_FRAME - (time.time() - time_start))
+	print(TIME_PER_FRAME - (time.time() - time_start))
 	#sleep to maintain a constant framerate of 30 fps
 	if TIME_PER_FRAME - (time.time() - time_start) > .0002:
 		time.sleep(TIME_PER_FRAME - (time.time() - time_start))
