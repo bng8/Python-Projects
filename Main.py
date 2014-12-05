@@ -92,7 +92,7 @@ timePStart = time.time()
 while playing == True:
 	#get the time at start of this specific cycle of loop
 	time_start = time.time()
-	#check for key and mouse events
+	#check for key and mouse event
 	#Polling input
 	for event in pygame.event.get():
 		if event.type == pygame.QUIT:
@@ -144,7 +144,7 @@ while playing == True:
 		print(timeSlept)
 		timeSlept = 0
 	'''
-	print(TIME_PER_FRAME - (time.time() - time_start))
+	#print(TIME_PER_FRAME - (time.time() - time_start))
 	#sleep to maintain a constant framerate of 30 fps
 	if TIME_PER_FRAME - (time.time() - time_start) > .0002:
 		time.sleep(TIME_PER_FRAME - (time.time() - time_start))

@@ -21,7 +21,7 @@ class LevelBuilder():
 	def update(self, keys):
 		self.player.update(keys)
 		for guard in self.guards:
-			guard.update(self.player.playerRect)
+			guard.update(self.player.playerRect, self.bodies)
 		for body in self.bodies:
 			body.update((0, 0))
 
