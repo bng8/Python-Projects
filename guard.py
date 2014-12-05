@@ -1,11 +1,5 @@
 import pygame
-import sys
-import time
-import urllib
 import math
-import os
-import urllib.request
-import io
 import astar
 import pygame.gfxdraw
 
@@ -115,24 +109,26 @@ class Line:
 		self.endPos = (self.startPos[0] + unit[0] * mag, self.startPos[1] + unit[1] * mag)
 
 	def getAngle(self, theta):
-		#positive y is down
-		#vector at top of circle(cartesian sin 90)
-		vec = (0, -1)
-		magVec = (vec[0] ** 2 + vec[1] ** 2) ** (1 / 2)
-		#dot product of line and vector at top
-		val = vec[0] * self.distX + vec[1] * self.distY
-		#try except is for rounding errors
-		try:
-			#dot product rule
-			ang = math.acos(val / (magVec * self.mag))
-		except:
-			ang = math.acos(round(val / (magVec * self.mag)))
+		#vector opposite of where we are facing
+		#flip sin and cos because we take 0 degrees at top of circle
+		vec = [-math.sin(math.radians(theta)), -math.cos(math.radians(theta))]
+		
+		#get magnitude of vector where we are facing(always one[sin^2 + cos^2 = 1])
+		magVec = 1
+		
+		#cross product of vector for each ray and vector we are facing
+		val = vec[0] * self.distY - vec[1] * self.distX
 
-		#if the angle is to the left it is negative(need realive angles)
-		if self.distX > 0:
-			return theta - ang
-		else:
-			return -(theta - ang)
+		#try except is for rounding errors(precautionary)
+		try:
+			#cross product rule
+			ang = math.asin(val / (magVec * self.mag))
+		except:
+			ang = math.asin(round(val / (magVec * self.mag)))
+
+		#return angle with respect to vector opposite of direction of motion
+		return ang * 180 / math.pi
+
 
 	def __repr__(self):
 		return "endPos: " + str(self.distX) + ", " + str(self.distY) + "  angle" + str(self.getAngle(math.pi))
@@ -141,44 +137,48 @@ class Line:
 
 
 class Guard:
-	def __init__(self, pos_, path_, map_):
+	def __init__(self, pos_, path_, map_, speed, rang, fov):
 		#same thing as player; these two are used to make it look like they're walking
 		self.x=0
 
 		#initialize vars
 		self.path = path_
 		self.level = map_
-		self.speed = 4
-		self.range = 400
-		self.fov = 60
+		self.speed = speed
+		self.range = rang
+		self.fov = fov
 		self.triangles = []
 		self.pos = [0,0]
 		self.pos[0], self.pos[1] = pos_[0], pos_[1]
 		self.img = [pygame.image.load("res/guard-left.png").convert_alpha(), pygame.image.load("res/guard-right.png").convert_alpha()]
+		self.imgStanding = pygame.image.load("res/guard-standing.png").convert_alpha()
 		self.guardRect = self.img[0].get_rect()
 		self.guardRect.center = self.pos
 		self.startPoint = self.guardRect.center[0], self.guardRect.center[1]
 		self.searching = False
+		self.pathFound = False
+		self.standing = False
+
 
 	def initAStar(self):
 		self.star = astar.AStar(self.level.getRectGrid(), None, None)
 
 	def draw(self, screen):
 		#rotate the image of the guard
-		rot_img, self.guardRect = rot_center(self.img[0], self.guardRect, self.theta)
+		if not self.standing:
+			rot_img, self.guardRect = rot_center(self.img[0], self.guardRect, self.theta)
+		else:
+			rot_img, self.guardRect = rot_center(self.imgStanding, self.guardRect, self.theta)
 
 		#draw guard on screen
 		screen.blit(rot_img, self.guardRect)
-
-		for ele in self.path:
-			pygame.draw.rect(screen, (0, 255, 0), pygame.Rect(ele[0], ele[1], 2, 2))
 
 		points = [self.guardRect.center]
 		for tri in self.triangles:
 			points.append(tri.pos3)
 			points.append(tri.pos1)
 		pygame.gfxdraw.filled_polygon(screen, points, (255,255, 0, 128))
-		#[ray.draw(screen, (0, 255, 0)) for ray in self.rays]
+
 
 	def generateRays(self):
 			#get the direction of movement
@@ -240,7 +240,7 @@ class Guard:
 					ray.changeMag(self.range)
 
 			#sort rays based on their angle with respect to direction of motion
-			self.rays = sorted(self.rays, key = lambda x: x.getAngle(math.radians(self.theta)))
+			self.rays = sorted(self.rays, key = lambda x: x.getAngle(self.theta))
 		
 			#create triangles formed by adjecent rays in the list
 			for i in range(1, len(self.rays)):
@@ -282,44 +282,49 @@ class Guard:
 		self.rays = []
 		self.triangles = []
 
+		if len(self.path) > 0:
 		#get direction of movement based on path
-		dirMove = (self.startPoint[0] - self.path[0][0], self.startPoint[1] - self.path[0][1])
-		
-		#get unit vector for movement
-		mag = ((dirMove[0] ** 2) + (dirMove[1] ** 2)) ** (1/2)
+			self.standing = False
+			dirMove = (self.startPoint[0] - self.path[0][0], self.startPoint[1] - self.path[0][1])
+			
+			#get unit vector for movement
+			mag = ((dirMove[0] ** 2) + (dirMove[1] ** 2)) ** (1/2)
 
-		#set the class var to the movement determine angle
-		if mag != 0: 
-			self.magMove[0], self.magMove[1] = dirMove[0] / mag, dirMove[1] / mag
-			thet = math.asin(dirMove[0]/ mag)
-		#adjust angle based of the direction of movement
-		if dirMove[1] > 0 and dirMove[0] < 0:
-			thet = math.pi - thet
-		if dirMove[1] > 0 and dirMove[0] >= 0:
-			thet = math.pi - thet
+			#set the class var to the movement determine angle
+			if mag != 0: 
+				self.magMove[0], self.magMove[1] = dirMove[0] / mag, dirMove[1] / mag
+				thet = math.asin(dirMove[0]/ mag)
+			#adjust angle based of the direction of movement
+			if dirMove[1] > 0 and dirMove[0] < 0:
+				thet = math.pi - thet
+			if dirMove[1] > 0 and dirMove[0] >= 0:
+				thet = math.pi - thet
 
-		#convert to degrees and assign to class var
-		self.theta = (-thet * 180 / math.pi) + 180
+			#convert to degrees and assign to class var
+			self.theta = (-thet * 180 / math.pi) + 180
 
-		#if guard reaches their desired path, cycle the path points
-		if math.fabs(self.path[0][0] - self.guardRect.center[0]) <= 5 and math.fabs(self.path[0][1] - self.guardRect.center[1]) <= 5:
-			self.startPoint = self.path[0]
-			self.guardRect.center = (self.path[0][0], self.path[0][1])
-			tmp = self.path.pop(0)
-			if not self.searching:
-				self.path.append(tmp)
+			#if guard reaches their desired path, cycle the path points
+			if math.fabs(self.path[0][0] - self.guardRect.center[0]) <= 6 and math.fabs(self.path[0][1] - self.guardRect.center[1]) <= 6:
+				self.startPoint = self.path[0]
+				self.guardRect.center = (self.path[0][0], self.path[0][1])
+				tmp = self.path.pop(0)
+				if not self.pathFound:
+					self.path.append(tmp)
+
+			self.x+=1
+			if self.x == 10:
+				self.img.append(self.img.pop(0))
+				self.x = 0
+
+			#move the guard based on position
+			self.guardRect.center = self.pos[0], self.pos[1]
+
+		else:
+			self.theta += 2
+			self.standing = True
 
 		#move pos based on speed
 		self.pos[0], self.pos[1] = self.pos[0] - (self.magMove[0] * self.speed), self.pos[1] - (self.magMove[1] * self.speed)
-
-
-		self.x+=1
-		if self.x == 10:
-			self.img.append(self.img.pop(0))
-			self.x = 0
-
-		#move the guard based on position
-		self.guardRect.center = self.pos[0], self.pos[1]
 
 		#start ray-tracing vision
 		self.generateRays()
@@ -329,7 +334,8 @@ class Guard:
 				if not self.star.notFound:
 					self.path = self.pathTmp
 					self.startPoint = self.guardRect.center
-					#grd = self.level.getRectGrid()
+					self.pathFound = True
+					grd = self.level.getRectGrid()
 
 					#for ele in self.path:
 					#	grd[ele[0]][ele[1]] = 5
@@ -338,21 +344,24 @@ class Guard:
 						self.path[i] = self.path[i][1], self.path[i][0]
 
 					#for ele in grd:
-					#	print(ele)
+						#print(ele)
 
 					for i in range(len(self.path)):
 						self.path[i] = self.path[i][0] * 32, self.path[i][1] * 32
-		
-		if len(self.path) <= 1:
-			if len(self.path) == 0:
-				self.path.append(playerRect.center)
-			else:
-				self.path[0] = playerRect.center
+			
+		'''
+		if not self.star.notFound:
+			self.pathFound = True
+			self.path = self.star.path
 			self.startPoint = self.guardRect.center
+			for i in range(len(self.path)):
+						self.path[i] = self.path[i][1], self.path[i][0]
 
+			for i in range(len(self.path)):
+						self.path[i] = self.path[i][0] * 32, self.path[i][1] * 32
+		'''
 
-		if self.checkCollision(playerRect) and not self.searching:
+		if self.checkCollision(playerRect) and not self.searching and not self.pathFound:
 			self.searching = True
 			self.star.startPath((int(self.guardRect.center[1] / 32), int(self.guardRect.center[0] / 32)), (int(playerRect.center[1] / 32), int(playerRect.center[0] / 32)))
-
-		print(self.path)
+		

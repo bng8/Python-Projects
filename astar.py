@@ -42,6 +42,7 @@ class AStar:
 		self.openNodes = [[0 for i in range(len(self.grid[0]))] for j in range(len(self.grid))]
 		self.closedNodes = [[0 for i in range(len(self.grid[0]))] for j in range(len(self.grid))]
 		self.path = []
+		self.notFound = True
 
 	def startPath(self, start, goal):
 		self.start = start
@@ -52,6 +53,8 @@ class AStar:
 		self.openNodes[startNode.x][startNode.y] = 0
 		self.closedNodes[startNode.x][startNode.y] = 1
 		self.notFound = True
+		self.grid[start[0]][start[1]] = 0
+		self.grid[goal[0]][goal[1]] = 0
 
 	def pathFind(self, TIME_PERMITTED):
 		#send in the time we are allowing to compute this part 
@@ -67,7 +70,7 @@ class AStar:
 				while curNode.parent:
 					pathList.append((curNode.x, curNode.y))
 					curNode = curNode.parent
-				self.path =  pathList[::-1]
+				self.path = pathList[::-1]
 
 			curNode = heapq.heappop(self.queue)
 			x = curNode.x
@@ -81,7 +84,8 @@ class AStar:
 				while curNode.parent:
 					pathList.append((curNode.x, curNode.y))
 					curNode = curNode.parent
-				self.path ==  pathList[::-1]
+				self.path = pathList[::-1]
+				return self.path
 
 			for i in range(len(dx)):
 				childX = x + dx[i]
@@ -103,9 +107,5 @@ class AStar:
 								self.queue[i2] = childNode
 								break
 						heapq.heapify(self.queue)
-
-			if not self.notFound:
-				while curNode.parent:
-					pathList.append((curNode.x, curNode.y))
-					curNode = curNode.parent
-				return pathList[::-1]
+		if len(self.queue) == 0:
+			return None
