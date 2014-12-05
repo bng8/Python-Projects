@@ -1,5 +1,4 @@
 import pygame
-import math
 
 class Body:
 	def __init__(self, pos, theta):
