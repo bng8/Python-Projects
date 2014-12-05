@@ -21,7 +21,7 @@ time_start = 0
 timeS = time.time()
 playing = True
 #bools for keys
-keys = {"W": False, "S" : False, "D" : False, "A" : False, "SPACE" : False}
+keys = {"W": False, "S" : False, "D" : False, "A" : False, "P" : False, "SPACE" : False}
 
 def levelFileReader(filename):
 	#variables
@@ -108,8 +108,10 @@ while playing == True:
 				keys['A'] = True
 			if event.key == pygame.K_d:
 				keys['D'] = True
+			if event.key == pygame.K_p:
+				keys['P'] = not keys['P']
 			if event.key == pygame.K_SPACE:
-				keys['SPACE'] = not keys['SPACE']
+				keys['SPACE'] = True
 		if event.type == pygame.KEYUP:
 			if event.key == pygame.K_w:
 				keys['W'] = False
@@ -119,9 +121,11 @@ while playing == True:
 				keys['A'] = False
 			if event.key == pygame.K_d:
 				keys['D'] = False
+			if event.key == pygame.K_SPACE:
+				keys['SPACE'] = False
 
 	#update everything if not paused
-	if not keys['SPACE']:
+	if not keys['P']:
 		level.update(keys)
 			
 	#make screen black(erase screen)
@@ -129,9 +133,14 @@ while playing == True:
 
 	level.draw(screen)
 
-	if keys['SPACE']:
+	if keys['P']:
 		screen.blit(pausedText, (320,300))
 		screen.blit(continueText, (320 ,400))
+
+	if keys['SPACE']:
+		for body in level.bodies:
+			if level.player.playerRect.colliderect(body.rect):
+				print("Hello")
 
 	#update display
 	pygame.display.flip()
@@ -144,7 +153,6 @@ while playing == True:
 		print(timeSlept)
 		timeSlept = 0
 	'''
-	print(TIME_PER_FRAME - (time.time() - time_start))
 	#sleep to maintain a constant framerate of 30 fps
 	if TIME_PER_FRAME - (time.time() - time_start) > .0002:
 		time.sleep(TIME_PER_FRAME - (time.time() - time_start))
