@@ -46,6 +46,7 @@ class LevelBuilder():
 			guard.draw(screen)
 
 		x=0
+		
 		for wall in self.walls:
 			#when the wall is wider than it is long, so that the brick pattern still works
 			if(wall.right-wall.left>32):
@@ -60,6 +61,8 @@ class LevelBuilder():
 					x+=32
 			x=0
 			pygame.draw.rect(screen, (0, 0, 0), wall, 3)
+
+		
 			#pygame.draw.rect(screen, (51,51,51), wall)
 			
 	def getRectGrid(self):

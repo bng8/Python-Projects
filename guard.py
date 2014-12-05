@@ -109,24 +109,26 @@ class Line:
 		self.endPos = (self.startPos[0] + unit[0] * mag, self.startPos[1] + unit[1] * mag)
 
 	def getAngle(self, theta):
-		#positive y is down
-		#vector at top of circle(cartesian sin 90)
-		vec = (0, -1)
-		magVec = (vec[0] ** 2 + vec[1] ** 2) ** (1 / 2)
-		#dot product of line and vector at top
-		val = vec[0] * self.distX + vec[1] * self.distY
-		#try except is for rounding errors
-		try:
-			#dot product rule
-			ang = math.acos(val / (magVec * self.mag))
-		except:
-			ang = math.acos(round(val / (magVec * self.mag)))
+		#vector opposite of where we are facing
+		#flip sin and cos because we take 0 degrees at top of circle
+		vec = [-math.sin(math.radians(theta)), -math.cos(math.radians(theta))]
+		
+		#get magnitude of vector where we are facing(always one[sin^2 + cos^2 = 1])
+		magVec = 1
+		
+		#cross product of vector for each ray and vector we are facing
+		val = vec[0] * self.distY - vec[1] * self.distX
 
-		#if the angle is to the left it is negative(need realive angles)
-		if self.distX > 0:
-			return theta - ang
-		else:
-			return -(theta - ang)
+		#try except is for rounding errors(precautionary)
+		try:
+			#cross product rule
+			ang = math.asin(val / (magVec * self.mag))
+		except:
+			ang = math.asin(round(val / (magVec * self.mag)))
+
+		#return angle with respect to vector opposite of direction of motion
+		return ang * 180 / math.pi
+
 
 	def __repr__(self):
 		return "endPos: " + str(self.distX) + ", " + str(self.distY) + "  angle" + str(self.getAngle(math.pi))
@@ -135,16 +137,16 @@ class Line:
 
 
 class Guard:
-	def __init__(self, pos_, path_, map_):
+	def __init__(self, pos_, path_, map_, speed, rang, fov):
 		#same thing as player; these two are used to make it look like they're walking
 		self.x=0
 
 		#initialize vars
 		self.path = path_
 		self.level = map_
-		self.speed = 4
-		self.range = 400
-		self.fov = 60
+		self.speed = speed
+		self.range = rang
+		self.fov = fov
 		self.triangles = []
 		self.pos = [0,0]
 		self.pos[0], self.pos[1] = pos_[0], pos_[1]
@@ -156,6 +158,7 @@ class Guard:
 		self.searching = False
 		self.pathFound = False
 		self.standing = False
+
 
 	def initAStar(self):
 		self.star = astar.AStar(self.level.getRectGrid(), None, None)
@@ -170,15 +173,12 @@ class Guard:
 		#draw guard on screen
 		screen.blit(rot_img, self.guardRect)
 
-		#for ele in self.path:
-		#	pygame.draw.rect(screen, (0, 255, 0), pygame.Rect(ele[0], ele[1], 2, 2))
-
 		points = [self.guardRect.center]
 		for tri in self.triangles:
 			points.append(tri.pos3)
 			points.append(tri.pos1)
 		pygame.gfxdraw.filled_polygon(screen, points, (255,255, 0, 128))
-		#[ray.draw(screen, (0, 255, 0)) for ray in self.rays]
+
 
 	def generateRays(self):
 			#get the direction of movement
@@ -240,7 +240,7 @@ class Guard:
 					ray.changeMag(self.range)
 
 			#sort rays based on their angle with respect to direction of motion
-			self.rays = sorted(self.rays, key = lambda x: x.getAngle(math.radians(self.theta)))
+			self.rays = sorted(self.rays, key = lambda x: x.getAngle(self.theta))
 		
 			#create triangles formed by adjecent rays in the list
 			for i in range(1, len(self.rays)):
@@ -337,18 +337,17 @@ class Guard:
 					self.pathFound = True
 					grd = self.level.getRectGrid()
 
-					for ele in self.path:
-						grd[ele[0]][ele[1]] = 5
+					#for ele in self.path:
+					#	grd[ele[0]][ele[1]] = 5
 
 					for i in range(len(self.path)):
 						self.path[i] = self.path[i][1], self.path[i][0]
 
-					for ele in grd:
-						print(ele)
+					#for ele in grd:
+						#print(ele)
 
 					for i in range(len(self.path)):
 						self.path[i] = self.path[i][0] * 32, self.path[i][1] * 32
-					print("PATH FOUND")
 			
 		'''
 		if not self.star.notFound:

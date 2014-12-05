@@ -55,7 +55,7 @@ def levelFileReader(filename):
 	#prepping the guard info
 	guard_lines = level_list[1].split('\n')[1:]
 	speed = guard_lines[0] #first line
-	Range = guard_lines[1] #second line
+	rang = guard_lines[1] #second line
 	fov = guard_lines[2] #third line
 	#putting the paths into an array
 	paths = guard_lines[3:]
@@ -64,7 +64,7 @@ def levelFileReader(filename):
 		for i in range(len(path)):
 			tmp = path[i].strip().split(" ")
 			path[i] = int(tmp[0]), int(tmp[1])
-		guards.append(Guard(path[0], path, None))
+		guards.append(Guard(path[0], path, None, int(speed), int(rang), int(fov)))
 
 	#add borders around screen(in every level)
 	levelRects.append(pygame.Rect(0,0,size[0], 32))
@@ -92,7 +92,6 @@ timePStart = time.time()
 while playing == True:
 	#get the time at start of this specific cycle of loop
 	time_start = time.time()
-
 	#check for key and mouse events
 	#Polling input
 	for event in pygame.event.get():
@@ -145,6 +144,7 @@ while playing == True:
 		print(timeSlept)
 		timeSlept = 0
 	'''
+	print(TIME_PER_FRAME - (time.time() - time_start))
 	#sleep to maintain a constant framerate of 30 fps
 	if TIME_PER_FRAME - (time.time() - time_start) > .0002:
 		time.sleep(TIME_PER_FRAME - (time.time() - time_start))
