@@ -15,6 +15,3 @@ class Body:
 		rot_rect.center = self.rect.center
 		screen.blit(rot_img, rot_rect)
 
-	def update(self, dirMove):
-		self.pos[0], self.pos[1] = self.pos[0] + dirMove[0], self.pos[1] + dirMove[1]
-		self.rect.center = (self.pos[0], self.pos[1])
