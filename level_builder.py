@@ -22,8 +22,6 @@ class LevelBuilder():
 		self.player.update(keys)
 		for guard in self.guards:
 			guard.update(self.player.playerRect)
-		for body in self.bodies:
-			body.update((0, 0))
 
 		#check for if the player kills a guard
 		for i in range(len(self.guards)):
@@ -34,6 +32,20 @@ class LevelBuilder():
 				#add body in guards position
 				self.bodies.append(Body(tmp.pos, tmp.theta))
 				break
+
+		if self.player.carrying and not keys["SPACE"]:
+			self.bodies.append(Body(self.player.playerRect.center, 0))
+			self.player.carrying = False
+			self.player.speed = 5
+		else:
+			for i, body in enumerate(self.bodies):
+				if not self.player.carrying and self.player.playerRect.colliderect(body.rect) and keys["SPACE"]:
+					self.player.attacking = False
+					self.player.carrying = True
+					self.player.speed = 3
+					self.bodies.pop(i)
+
+
 
 	def draw(self, screen):
 		screen.blit(self.floor_img, (0,0))
