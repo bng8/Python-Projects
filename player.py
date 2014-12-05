@@ -17,6 +17,7 @@ class Player:
 		self.img = [pygame.image.load("res/player-right2.png").convert_alpha(), pygame.image.load("res/player-left2.png").convert_alpha()]
 		self.imgStanding = pygame.image.load("res/player-standing2.png").convert_alpha()
 		self.imgAttacking = pygame.image.load("res/player-knife2.png").convert_alpha()
+		self.imgCarrying = pygame.image.load("res/player.png").convert_alpha()
 		self.playerRect = self.img[0].get_rect()
 		self.pos = pos
 		self.playerRect = self.playerRect.move(pos[0], pos[1])
@@ -25,12 +26,16 @@ class Player:
 		self.level = level
 		self.attacking = False
 		self.standing = True
+		self.carrying = False
 		self.collisionRect = pygame.Rect(self.playerRect.center[0] - 31, self.playerRect.center[1] - 31, 64, 64) 
 
 	def draw(self, screen): 
 		#rotate player image
 		if self.standing and not self.attacking:
 			rot_img = pygame.transform.rotate(self.imgStanding, self.theta)
+			mag = 23
+		elif self.carrying:
+			rot_img = pygame.transform.rotate(self.imgCarrying, self.theta)
 			mag = 23
 		elif not self.attacking:
 			rot_img = pygame.transform.rotate(self.img[0], self.theta)
@@ -71,7 +76,7 @@ class Player:
 		#check what keys/buttons are pressed
 		if keys["W"]:
 			self.standing = False
-			deltaF = 5
+			deltaF = self.speed
 			self.x+=1
 			if self.x == 5:
 				self.img.append(self.img.pop(0))
@@ -79,16 +84,16 @@ class Player:
 		else:
 			self.standing = True
 		if keys["A"]:
-			deltaS = -5
+			deltaS = -self.speed
 		if keys["S"]:
-			deltaF = -5
+			deltaF = -self.speed
 		if keys["D"]:
-			deltaS = 5
+			deltaS = self.speed
 		if pygame.mouse.get_pressed()[0]:
 			self.attacking = True
 		else:
 			self.attacking = False
-
+			
 		#move rectangle bsed on key input
 		self.playerRect = self.playerRect.move(dirMovement[0] * deltaF, dirMovement[1] * deltaF)
 		self.playerRect = self.playerRect.move(-dirMovement[1] * deltaS, dirMovement[0] * deltaS)
