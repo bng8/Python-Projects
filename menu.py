@@ -20,95 +20,88 @@ import sys
 ## - style is the same throughout
 ## - We should put music, but I don't like this one.
 
-pygame.init()
-size = (1024,768)
-pygame.display.set_caption("Body Game")
-screen = pygame.display.set_mode(size)
-bgImg = pygame.image.load("res/menu-bg.jpg")
+class Menu:
+    def __init__(self, handler):
+        self.size = (1024,768)
+        self.bgImg = pygame.image.load("res/menu-bg.jpg").convert_alpha()
+        playIcon = pygame.image.load("res/play.png").convert_alpha()
+        instructionsIcon = pygame.image.load("res/instructions.png").convert_alpha()
+        creditsIcon = pygame.image.load("res/credits.png").convert_alpha()
+        self.icon_list = [playIcon, instructionsIcon, creditsIcon]
+        pygame.font.init()
 
-#This is if we want to add music. I suggest we use a more fitting song/sound
-#though (same thing applies for all the images I used)
-pygame.mixer.music.load("res/Nas.wav")
-pygame.mixer.music.play(-1)
+        self.handler = handler
 
-FRAMES_PER_SECOND = 30
-TIME_PER_FRAME = 1.0 / 30.0
-time_start = 0
-timeS = time.time()
-playing = True
+        icon_rect_list = []
+        x = 0
+        for icon in self.icon_list:
+            icon_rect = icon.get_rect()
+            icon_rect.x,icon_rect.y = (295+x,330)
+            icon_rect_list.append(icon_rect)
 
-#Used for instructions/credit screen
-def onMouseClick(JPEG):
-    if event.type == pygame.MOUSEBUTTONUP:
-        imgToDraw = pygame.image.load(JPEG)
-        screen.blit(imgToDraw,(58,450))
+        self.icon_rect_list = []
 
-while playing:
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            pygame.quit()
-        if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_ESCAPE:
-                playing = False
-
-    screen.fill((0, 0, 0))
-    screen.blit(bgImg,(0,0))
-    
-    playIcon = pygame.image.load("res/play.png")
-    instructionsIcon = pygame.image.load("res/instructions.png")
-    creditsIcon = pygame.image.load("res/credits.png")
-    icon_list = [playIcon, instructionsIcon, creditsIcon]
-
-    #Turning icon images into rects to detect when hovered over by mouse
-    icon_rect_list = []
-    x = 0
-    for icon in icon_list:
-        icon_rect = icon.get_rect()
-        icon_rect.x,icon_rect.y = (295+x,330)
-        icon_rect_list.append(icon_rect)
-
-        screen.blit(icon,(295+x, 330))
-        x+=150
+        x = 0
+        for icon in self.icon_list:
+            icon_rect = icon.get_rect()
+            icon_rect.x,icon_rect.y = (295 + x,330)
+            self.icon_rect_list.append(icon_rect)
+            x+=150
         
-    font = pygame.font.SysFont('comicsansms', 16)
-    
-    #Going through icons; if they are hovered over, highlight them and add
-    #text underneath describing their purpose
-    for i, icon in enumerate(icon_rect_list):
-        if icon.collidepoint(pygame.mouse.get_pos()) and i == 0:
-            playIcon = pygame.image.load("res/play_highlighted.png")
-            screen.blit(playIcon, (295,330))
-            playGameTxt = font.render("Play Game", 1, (255,0,0))
-            screen.blit(playGameTxt, (320, 450))
-            pygame.mouse.set_cursor(*pygame.cursors.diamond)
-            if event.type == pygame.MOUSEBUTTONUP:
-                pygame.mixer.music.fadeout(1500)
-                import Main
-                sys.exit()
-            break
+        self.font = pygame.font.SysFont('comicsansms', 16)
 
-        if icon.collidepoint(pygame.mouse.get_pos()) and i == 1:
-            instructionsIcon = pygame.image.load("res/instructions_highlighted.png")
-            screen.blit(instructionsIcon, (445,330))
-            instructionsTxt = font.render("Instructions", 1, (255,0,0))
-            screen.blit(instructionsTxt, (460, 450))
-            pygame.mouse.set_cursor(*pygame.cursors.diamond)
-            onMouseClick("res/instructions_box.jpg")
-            break
+        #This is if we want to add music. I suggest we use a more fitting song/sound
+        #though (same thing applies for all the images I used)
+        pygame.mixer.music.load("res/Nas.wav")
+        pygame.mixer.music.play(-1)
 
-        if icon.collidepoint(pygame.mouse.get_pos()) and i == 2:
-            creditsIcon = pygame.image.load("res/credits_highlighted.png")
-            screen.blit(creditsIcon,(595,330))
-            creditsTxt = font.render("Credits", 1, (255,0,0))
-            screen.blit(creditsTxt, (625, 450))
-            pygame.mouse.set_cursor(*pygame.cursors.diamond)
-            onMouseClick("res/credits_box.jpg")
-            break
+    #Used for instructions/credit screen
+    def onMouseClick(self, screen, JPEG):
+        if pygame.mouse.get_pressed()[0]:
+            imgToDraw = pygame.image.load(JPEG)
+            screen.blit(imgToDraw,(58,450))
 
-        pygame.mouse.set_cursor(*pygame.cursors.arrow)
+    def draw(self, screen):
+        screen.fill((0, 0, 0))
+        screen.blit(self.bgImg,(0,0))
+
+        for i in range(len(self.icon_list)):
+            screen.blit(self.icon_list[i], self.icon_rect_list[i])
+        
+        for i, icon in enumerate(self.icon_rect_list):
+            if icon.collidepoint(pygame.mouse.get_pos()) and i == 0:
+                playIcon = pygame.image.load("res/play_highlighted.png")
+                screen.blit(playIcon, (295,330))
+                playGameTxt = self.font.render("Play Game", 1, (255,0,0))
+                screen.blit(playGameTxt, (320, 450))
+                pygame.mouse.set_cursor(*pygame.cursors.diamond)
+                if pygame.mouse.get_pressed()[0]:
+                    pygame.mixer.music.fadeout(1500)
+                    self.handler.curState = 3
+                break
+
+            if icon.collidepoint(pygame.mouse.get_pos()) and i == 1:
+                instructionsIcon = pygame.image.load("res/instructions_highlighted.png")
+                screen.blit(instructionsIcon, (445,330))
+                instructionsTxt = self.font.render("Instructions", 1, (255,0,0))
+                screen.blit(instructionsTxt, (460, 450))
+                pygame.mouse.set_cursor(*pygame.cursors.diamond)
+                self.onMouseClick(screen, "res/instructions_box.jpg")
+                if pygame.mouse.get_pressed()[0]:
+                    self.handler.curState = 3
+                break
+
+            if icon.collidepoint(pygame.mouse.get_pos()) and i == 2:
+                creditsIcon = pygame.image.load("res/credits_highlighted.png")
+                screen.blit(creditsIcon,(595,330))
+                creditsTxt = self.font.render("Credits", 1, (255,0,0))
+                screen.blit(creditsTxt, (625, 450))
+                pygame.mouse.set_cursor(*pygame.cursors.diamond)
+                self.onMouseClick(screen, "res/credits_box.jpg")
+                if pygame.mouse.get_pressed()[0]:
+                    self.handler.curState
+                break
+
+    def update(self):
+        pass
             
-    pygame.display.flip()
-
-    #sleep to maintain a constant framerate of 30 fps
-    if TIME_PER_FRAME - (time.time() - time_start) > 0:
-        time.sleep(TIME_PER_FRAME - (time.time() - time_start))

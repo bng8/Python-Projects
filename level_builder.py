@@ -40,7 +40,7 @@ class LevelBuilder():
 		#check for if the player kills a guard
 		for i in range(len(self.guards)):
 			#if rects collide(will change when we have attack animation)
-			if self.player.collisionRect.colliderect(self.guards[i].collisionRect):
+			if self.player.collisionRect.colliderect(self.guards[i].guardRect):
 				if self.guards[i].playerSeen:
 					#self.gameOver = 1
 					pass
