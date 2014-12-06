@@ -185,6 +185,8 @@ class Guard:
 		#draw guard on screen
 		screen.blit(rot_img, self.guardRect)
 
+		pygame.draw.rect(screen, (255, 0, 0), self.collisionRect,1)
+
 		points = [self.guardRect.center]
 		for tri in self.triangles:
 			points.append(tri.pos3)
@@ -345,7 +347,7 @@ class Guard:
 			#move pos based on speed
 			self.pos[0], self.pos[1] = self.pos[0] - (self.magMove[0] * self.speed), self.pos[1] - (self.magMove[1] * self.speed)
 			self.guardRect.center = self.pos[0], self.pos[1]
-			self.collisionRect = self.guardRect.copy().inflate(-80, -80)
+			self.collisionRect = pygame.Rect(self.pos[0], self.pos[1], 1, 1)
 
 		else:
 			self.theta += 2
@@ -377,18 +379,6 @@ class Guard:
 
 					for i in range(len(self.path)):
 						self.path[i] = self.path[i][0] * 32, self.path[i][1] * 32
-			
-		'''
-		if not self.star.notFound:
-			self.pathFound = True
-			self.path = self.star.path
-			self.startPoint = self.guardRect.center
-			for i in range(len(self.path)):
-						self.path[i] = self.path[i][1], self.path[i][0]
-
-			for i in range(len(self.path)):
-						self.path[i] = self.path[i][0] * 32, self.path[i][1] * 32
-		'''
 
 		playerSeen = self.checkCollision(playerRect)
 		if playerSeen and self.canWalkStraight(playerRect):
@@ -396,13 +386,14 @@ class Guard:
 			pathFound = True
 		elif (playerSeen and not self.searching and not self.pathFound) or self.mandate:
 			self.searching = True
-			self.star.startPath((int(self.guardRect.center[1] / 32), int(self.guardRect.center[0] / 32)), (int(playerRect.center[1] / 32), int(playerRect.center[0] / 32)))
+			self.star.startPath((roundNum(self.guardRect.center[1] / 32), roundNum(self.guardRect.center[0] / 32)), (roundNum(playerRect.center[1] / 32), roundNum(playerRect.center[0] / 32)))
 
 		if not playerSeen:
 			for body in bodies:
 				if self.checkCollision(body.rect):
 					self.searching = True
 					self.star.startPath((roundNum(self.guardRect.center[1] / 32), roundNum(self.guardRect.center[0] / 32)), (roundNum(body.rect.center[1] / 32), roundNum(body.rect.center[0] / 32)))
+					#self.star.startPath((roundNum(self.guardRect.center[1] / 16), roundNum(self.guardRect.center[0] / 16)), (roundNum(body.rect.center[1] / 16), roundNum(body.rect.center[0] / 16)))
 
 		
 		for wall in self.level.walls:
