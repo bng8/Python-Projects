@@ -54,7 +54,7 @@ class LevelBuilder():
 
 		if keys["SPACE"]:
 			if self.player.carrying and self.cooldown == 0:
-				self.bodies.append(Body(self.player.playerRect.center, 0))
+				self.bodies.append(Body(self.player.playerRect.center, self.player.theta))
 				self.player.carrying = False
 				self.player.speed = 5
 				self.cooldown = 10
