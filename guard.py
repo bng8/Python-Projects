@@ -185,6 +185,8 @@ class Guard:
 		#draw guard on screen
 		screen.blit(rot_img, self.guardRect)
 
+		pygame.draw.rect(screen, (255, 0, 0), self.collisionRect,1)
+
 		points = [self.guardRect.center]
 		for tri in self.triangles:
 			points.append(tri.pos3)
@@ -377,18 +379,6 @@ class Guard:
 
 					for i in range(len(self.path)):
 						self.path[i] = self.path[i][0] * 32, self.path[i][1] * 32
-			
-		'''
-		if not self.star.notFound:
-			self.pathFound = True
-			self.path = self.star.path
-			self.startPoint = self.guardRect.center
-			for i in range(len(self.path)):
-						self.path[i] = self.path[i][1], self.path[i][0]
-
-			for i in range(len(self.path)):
-						self.path[i] = self.path[i][0] * 32, self.path[i][1] * 32
-		'''
 
 		playerSeen = self.checkCollision(playerRect)
 		if playerSeen and self.canWalkStraight(playerRect):

@@ -31,11 +31,11 @@ class Player:
 
 	def draw(self, screen): 
 		#rotate player image
-		if self.standing and not self.attacking:
-			rot_img = pygame.transform.rotate(self.imgStanding, self.theta)
-			mag = 23
-		elif self.carrying:
+		if self.carrying:
 			rot_img = pygame.transform.rotate(self.imgCarrying, self.theta)
+			mag = 23
+		elif self.standing and not self.attacking:
+			rot_img = pygame.transform.rotate(self.imgStanding, self.theta)
 			mag = 23
 		elif not self.attacking:
 			rot_img = pygame.transform.rotate(self.img[0], self.theta)
