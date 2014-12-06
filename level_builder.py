@@ -42,7 +42,8 @@ class LevelBuilder():
 			#if rects collide(will change when we have attack animation)
 			if self.player.collisionRect.colliderect(self.guards[i].collisionRect):
 				if self.guards[i].playerSeen:
-					self.gameOver = 1
+					#self.gameOver = 1
+					pass
 				if self.player.attacking and not self.guards[i].playerSeen:
 					#get the guard/remove it
 					tmp = self.guards.pop(i)
@@ -77,7 +78,7 @@ class LevelBuilder():
 						self.cooldown = 10
 
 		if self.keyBoolList.count(True) == len(self.keyBoolList) and self.player.playerRect.colliderect(self.doorRect):
-			pass
+			self.gameOver = 1
 
 	def draw(self, screen):
 		screen.blit(self.floor_img, (0,0))
