@@ -347,7 +347,7 @@ class Guard:
 			#move pos based on speed
 			self.pos[0], self.pos[1] = self.pos[0] - (self.magMove[0] * self.speed), self.pos[1] - (self.magMove[1] * self.speed)
 			self.guardRect.center = self.pos[0], self.pos[1]
-			self.collisionRect = self.guardRect.copy().inflate(-80, -80)
+			self.collisionRect = pygame.Rect(self.pos[0], self.pos[1], 1, 1)
 
 		else:
 			self.theta += 2
@@ -386,13 +386,14 @@ class Guard:
 			pathFound = True
 		elif (playerSeen and not self.searching and not self.pathFound) or self.mandate:
 			self.searching = True
-			self.star.startPath((int(self.guardRect.center[1] / 32), int(self.guardRect.center[0] / 32)), (int(playerRect.center[1] / 32), int(playerRect.center[0] / 32)))
+			self.star.startPath((roundNum(self.guardRect.center[1] / 32), roundNum(self.guardRect.center[0] / 32)), (roundNum(playerRect.center[1] / 32), roundNum(playerRect.center[0] / 32)))
 
 		if not playerSeen:
 			for body in bodies:
 				if self.checkCollision(body.rect):
 					self.searching = True
 					self.star.startPath((roundNum(self.guardRect.center[1] / 32), roundNum(self.guardRect.center[0] / 32)), (roundNum(body.rect.center[1] / 32), roundNum(body.rect.center[0] / 32)))
+					#self.star.startPath((roundNum(self.guardRect.center[1] / 16), roundNum(self.guardRect.center[0] / 16)), (roundNum(body.rect.center[1] / 16), roundNum(body.rect.center[0] / 16)))
 
 		
 		for wall in self.level.walls:

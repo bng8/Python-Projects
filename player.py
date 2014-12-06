@@ -50,7 +50,7 @@ class Player:
 			
 		#draw image
 		screen.blit(rot_img, rot_rect)
-		pygame.draw.rect(screen, (255, 0 , 0), rot_rect, 3)
+		pygame.draw.rect(screen, (255, 0 , 0), self.collisionRect, 3)
 
 	def update(self, keys):
 		deltaF = 0

@@ -155,8 +155,8 @@ while playing == True:
 		print(timeSlept)
 		timeSlept = 0
 	'''
-	#print(TIME_PER_FRAME - (time.time() - time_start))
+	#print(TIME_PER_FRAME - (time.timwe() - time_start))
 	#sleep to maintain a constant framerate of 30 fps
-	if TIME_PER_FRAME - (time.time() - time_start) > .0002:
+	if TIME_PER_FRAME - (time.time() - time_start) > .0005:
 		time.sleep(TIME_PER_FRAME - (time.time() - time_start))
 		timeSlept += TIME_PER_FRAME - (time.time() - time_start)
