@@ -30,7 +30,7 @@ class Node:
 		#Manhattan
 		#return (math.fabs(dest[0] - self.x) + math.fabs(dest[1] - self.y))
 	def __repr__(self):
-		return("Node" + str(self.x) + str(self.y) + " P" + str(self.priority))
+		return("Node" + str(self.x) + "  - " + str(self.y) + " P" + str(self.priority))
 
 class AStar:
 	def __init__(self, grid_, start, goal):
@@ -47,13 +47,22 @@ class AStar:
 	def startPath(self, start, goal):
 		self.start = start
 		self.goal = goal
-		startNode = Node(start[0], start[1], None, 0, 0)
+		startNode = Node(start[0] - 1, start[1] - 1, None, 0, 0)
 		startNode.updatePriority(goal)
 		heapq.heappush(self.queue, startNode)
+		if startNode.y > 32:
+			startNode.y = 31
+		elif startNode.y < 0:
+			startNode.y = 1
+		if startNode.x > 24:
+			startNode.x = 23
+		elif startNode.x < 0:
+			startNode.x = 1
+		print(startNode)
 		self.openNodes[startNode.x][startNode.y] = 0
 		self.closedNodes[startNode.x][startNode.y] = 1
 		self.notFound = True
-		self.grid[start[0]][start[1]] = 0
+		self.grid[startNode.x][startNode.y] = 0
 		self.grid[goal[0]][goal[1]] = 0
 
 	def pathFind(self, TIME_PERMITTED):

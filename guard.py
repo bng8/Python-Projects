@@ -170,6 +170,7 @@ class Guard:
 		self.pathFound = False
 		self.standing = False
 		self.mandate = False
+		self.collisionRect = pygame.Rect(self.guardRect.center[0] - 31, self.guardRect.center[1] - 31, 64, 64) 
 
 
 	def initAStar(self):
@@ -380,15 +381,15 @@ class Guard:
 					for i in range(len(self.path)):
 						self.path[i] = self.path[i][0] * 32, self.path[i][1] * 32
 
-		playerSeen = self.checkCollision(playerRect)
-		if playerSeen and self.canWalkStraight(playerRect):
+		self.playerSeen = self.checkCollision(playerRect)
+		if self.playerSeen and self.canWalkStraight(playerRect):
 			self.path = [playerRect.center]
 			pathFound = True
-		elif (playerSeen and not self.searching and not self.pathFound) or self.mandate:
+		elif (self.playerSeen and not self.searching and not self.pathFound) or self.mandate:
 			self.searching = True
 			self.star.startPath((roundNum(self.guardRect.center[1] / 32), roundNum(self.guardRect.center[0] / 32)), (roundNum(playerRect.center[1] / 32), roundNum(playerRect.center[0] / 32)))
 
-		if not playerSeen:
+		if not self.playerSeen:
 			for body in bodies:
 				if self.checkCollision(body.rect):
 					self.searching = True
