@@ -13,13 +13,18 @@ class LevelBuilder():
 		for i in range(len(self.guards)):
 			self.guards[i].level = self
 			self.guards[i].initAStar()
-		self.player = player
+		self.player = player	
+		self.door_img = pygame.image.load("res/door.png").convert_alpha()
+		self.door_coordinates = (128, 0)
+		self.doorRect = self.door_img.get_rect()
+		self.doorRect.center = (self.door_coordinates[0]-20, self.door_coordinates[0]-80)
 		self.player.level = self
 		self.wallImgVert= pygame.image.load("res/wall_vertical.jpg").convert_alpha()
 		self.wallImgHor = pygame.transform.rotate(self.wallImgVert, 90)
 		self.bodies = []
 		self.cooldown = 0
 		self.safes = safes
+		self.keyBoolList = [False] * len(self.safes)
 		self.keyImg = pygame.image.load("res/key.png").convert_alpha()
 		grd = self.getRectGrid()
 		for ele in grd:
@@ -67,6 +72,8 @@ class LevelBuilder():
 						self.bodies.pop(i)
 						self.cooldown = 10
 
+		if self.keyBoolList.count(True) == len(self.keyBoolList) and self.player.playerRect.colliderect(self.doorRect):
+			pass
 
 	def draw(self, screen):
 		screen.blit(self.floor_img, (0,0))
@@ -102,8 +109,9 @@ class LevelBuilder():
 		#Drawing keys after safes are emptied
 		keyImg = self.keyImg
 		x = 0
-		for safe in self.safes:
+		for i, safe in enumerate(self.safes):
 			if safe.objectRetrieved:
+				self.keyBoolList[i] = True
 				screen.blit(keyImg,(875+x, 0))
 				x+=50
 
@@ -111,7 +119,8 @@ class LevelBuilder():
 			if not safe.objectRetrieved and self.player.collisionRect.colliderect(safe.rect):
 				safe.drawBar(screen)
 
-	
+		screen.blit(self.door_img, self.door_coordinates)
+
 	def getRectGrid(self):
 		"""Returns a 64x48 matrix of 0s and 1s, where 1s denote the presence of a wall"""
 		

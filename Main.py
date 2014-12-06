@@ -90,7 +90,7 @@ level= levelFileReader("Levels/level1")
 pygame.font.init()
 font = pygame.font.SysFont('timesnewroman', 100)
 pausedText = font.render("PAUSED", 1, (255,255,255))
-font2 = pygame.font.SysFont("timesnewroman", 36)
+font2 = pygame.font.SysFont("timesnewroman        ", 36)
 continueText = font2.render("Press spacebar to continue", 1, (255,255,255))
 
 timeSlept = 0
