@@ -24,7 +24,7 @@ class LevelBuilder():
 	def update(self, keys):
 		self.player.update(keys)
 		for guard in self.guards:
-			guard.update(self.player.playerRect)
+			guard.update(self.player.playerRect, self.bodies)
 
 		#check for if the player kills a guard
 		for i in range(len(self.guards)):

@@ -9,6 +9,12 @@ def rot_center(image, rect, angle):
 	rot_rect = rot_image.get_rect(center=rect.center)
 	return rot_image,rot_rect
 
+def roundNum(num):
+	if num % 1 > .5:
+		return int(num)
+	else:
+		return math.ceil(num)
+
 class Triangle:
 	def __init__(self, pos1, pos2, pos3):
 		self.pos1 = pos1
@@ -31,6 +37,12 @@ class Line:
 	def draw(self, screen, color):
 		#draw line
 		pygame.draw.line(screen, color, self.startPos, self.endPos)
+
+	def __eq__(self, other):
+		if self.startPos[0] == other.startPos[0] and self.startPos[1] == other.startPos[1] and self.endPos[0] == other.endPos[0] and self.endPos[1] == other.endPos[1]:
+			return True
+		else:
+			return False
 
 	def nearestIntersection(self, level):
 		t1, t2 = 100, 100
@@ -148,8 +160,7 @@ class Guard:
 		self.range = rang
 		self.fov = fov
 		self.triangles = []
-		self.pos = [0,0]
-		self.pos[0], self.pos[1] = pos_[0], pos_[1]
+		self.pos = [pos_[0], pos_[1]]
 		self.img = [pygame.image.load("res/guard-left.png").convert_alpha(), pygame.image.load("res/guard-right.png").convert_alpha()]
 		self.imgStanding = pygame.image.load("res/guard-standing.png").convert_alpha()
 		self.guardRect = self.img[0].get_rect()
@@ -158,6 +169,7 @@ class Guard:
 		self.searching = False
 		self.pathFound = False
 		self.standing = False
+		self.mandate = False
 
 
 	def initAStar(self):
@@ -275,8 +287,17 @@ class Guard:
 					return True
 		return False
 
+	def canWalkStraight(self, tarRect):
+		line = Line(self.guardRect.center, tarRect.center)
+		line2 = line.nearestIntersection(self.level)
 
-	def update(self, playerRect):
+		if line2 == line or line2.mag > line.mag:
+			return True
+		else:
+			return False
+
+
+	def update(self, playerRect, bodies):
 		self.magMove = [0, 0]
 		thet = 0
 		self.rays = []
@@ -286,6 +307,7 @@ class Guard:
 		#get direction of movement based on path
 			self.standing = False
 			dirMove = (self.startPoint[0] - self.path[0][0], self.startPoint[1] - self.path[0][1])
+			dirMove2 = (self.pos[0] - self.path[0][0], self.pos[1] - self.path[0][1])
 			
 			#get unit vector for movement
 			mag = ((dirMove[0] ** 2) + (dirMove[1] ** 2)) ** (1/2)
@@ -305,11 +327,14 @@ class Guard:
 
 			#if guard reaches their desired path, cycle the path points
 			if math.fabs(self.path[0][0] - self.guardRect.center[0]) <= 6 and math.fabs(self.path[0][1] - self.guardRect.center[1]) <= 6:
-				self.startPoint = self.path[0]
+				self.startPoint = [self.path[0][0], self.path[0][1]]
+				self.pos = [self.path[0][0], self.path[0][1]]
 				self.guardRect.center = (self.path[0][0], self.path[0][1])
 				tmp = self.path.pop(0)
 				if not self.pathFound:
 					self.path.append(tmp)
+		#	elif dirMove2[0] != 0 and dirMove2[1] != 0 and (dirMove[0] / dirMove2[0] < 0 or dirMove[1] / dirMove2[1] < 0):
+		#		self.pos = [self.path[0][0], self.path[0][1]]
 
 			self.x+=1
 			if self.x == 10:
@@ -317,14 +342,18 @@ class Guard:
 				self.x = 0
 
 			#move the guard based on position
+			#move pos based on speed
+			self.pos[0], self.pos[1] = self.pos[0] - (self.magMove[0] * self.speed), self.pos[1] - (self.magMove[1] * self.speed)
 			self.guardRect.center = self.pos[0], self.pos[1]
+			self.collisionRect = self.guardRect.copy().inflate(-80, -80)
 
 		else:
 			self.theta += 2
-			self.standing = True
-
-		#move pos based on speed
-		self.pos[0], self.pos[1] = self.pos[0] - (self.magMove[0] * self.speed), self.pos[1] - (self.magMove[1] * self.speed)
+			if not self.standing:
+				self.searching = False
+				self.pathFound = False
+				self.standing = True
+				self.initAStar()
 
 		#start ray-tracing vision
 		self.generateRays()
@@ -344,7 +373,7 @@ class Guard:
 						self.path[i] = self.path[i][1], self.path[i][0]
 
 					#for ele in grd:
-						#print(ele)
+					#	print(ele)
 
 					for i in range(len(self.path)):
 						self.path[i] = self.path[i][0] * 32, self.path[i][1] * 32
@@ -361,7 +390,27 @@ class Guard:
 						self.path[i] = self.path[i][0] * 32, self.path[i][1] * 32
 		'''
 
-		if self.checkCollision(playerRect) and not self.searching and not self.pathFound:
+		playerSeen = self.checkCollision(playerRect)
+		if playerSeen and self.canWalkStraight(playerRect):
+			self.path = [playerRect.center]
+			pathFound = True
+		elif (playerSeen and not self.searching and not self.pathFound) or self.mandate:
 			self.searching = True
 			self.star.startPath((int(self.guardRect.center[1] / 32), int(self.guardRect.center[0] / 32)), (int(playerRect.center[1] / 32), int(playerRect.center[0] / 32)))
+
+		if not playerSeen:
+			for body in bodies:
+				if self.checkCollision(body.rect):
+					self.searching = True
+					self.star.startPath((roundNum(self.guardRect.center[1] / 32), roundNum(self.guardRect.center[0] / 32)), (roundNum(body.rect.center[1] / 32), roundNum(body.rect.center[0] / 32)))
+
+		
+		for wall in self.level.walls:
+			if self.collisionRect.colliderect(wall):
+				self.pos[0], self.pos[1] = self.pos[0] + 2 * (self.magMove[0] * self.speed), self.pos[1] + 2 * (self.magMove[1] * self.speed)
+				self.mandate = True
+				self.initAStar()
+				break
+		
+
 		
