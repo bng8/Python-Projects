@@ -5,6 +5,7 @@ import urllib
 import os
 import urllib.request
 import io
+from safe import Safe
 from player import Player
 from guard import Guard
 from level_builder import LevelBuilder
@@ -31,6 +32,7 @@ def levelFileReader(filename):
 	fov=0
 	paths=[]           #array to hold the paths of number of guards for the level
 	guards = []
+	safes = []
 
 	#open file
 	level_file = open(filename + '.txt')
@@ -72,7 +74,12 @@ def levelFileReader(filename):
 	levelRects.append(pygame.Rect(0, 32, 32, size[1] - 32))
 	levelRects.append(pygame.Rect(size[0] - 32, 32, 32, size[1] - 32))
 
-	return LevelBuilder(pygame.image.load("res/background-img.jpg").convert_alpha(), levelRects, guards, player)
+	##hard coded, safes will be in txt file
+	safes.append(Safe((50, 50)))
+	safes.append(Safe((750, 200)))
+	safes.append(Safe((700, 650)))
+
+	return LevelBuilder(pygame.image.load("res/background-img.jpg").convert_alpha(), levelRects, guards, player, safes)
 	
 
 pygame.event.set_grab(True)
@@ -136,11 +143,6 @@ while playing == True:
 	if keys['P']:
 		screen.blit(pausedText, (320,300))
 		screen.blit(continueText, (320 ,400))
-
-	if keys['SPACE']:
-		for body in level.bodies:
-			if level.player.playerRect.colliderect(body.rect):
-				print("Hello")
 
 	#update display
 	pygame.display.flip()
