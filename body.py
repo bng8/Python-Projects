@@ -4,7 +4,7 @@ class Body:
 	def __init__(self, pos, theta):
 		self.pos = pos
 		self.theta = -theta - 90
-		self.img = pygame.transform.scale2x(pygame.image.load("res/guard-dead.png").convert_alpha())
+		self.img = pygame.image.load("res/guard-dead.png").convert_alpha()
 		self.img = pygame.transform.flip(self.img, True, False)
 		self.rect = self.img.get_rect()
 		self.rect.center = (pos[0], pos[1])

@@ -24,6 +24,7 @@ class LevelBuilder():
 		grd = self.getRectGrid()
 		for ele in grd:
 			print(ele)
+		self.gameOver = 0
 
 
 	def update(self, keys):
@@ -34,12 +35,15 @@ class LevelBuilder():
 		#check for if the player kills a guard
 		for i in range(len(self.guards)):
 			#if rects collide(will change when we have attack animation)
-			if self.player.playerRect.colliderect(self.guards[i].guardRect) and self.player.attacking:
-				#get the guard/remove it
-				tmp = self.guards.pop(i)
-				#add body in guards position
-				self.bodies.append(Body(tmp.pos, tmp.theta))
-				break
+			if self.player.collisionRect.colliderect(self.guards[i].collisionRect):
+				if self.guards[i].playerSeen:
+					self.gameOver = 1
+				if self.player.attacking and not self.guards[i].playerSeen:
+					#get the guard/remove it
+					tmp = self.guards.pop(i)
+					#add body in guards position
+					self.bodies.append(Body(tmp.pos, tmp.theta))
+					break
 
 		if self.cooldown > 0:
 			self.cooldown -= 1
@@ -54,7 +58,7 @@ class LevelBuilder():
 
 		if keys["SPACE"]:
 			if self.player.carrying and self.cooldown == 0:
-				self.bodies.append(Body(self.player.playerRect.center, 0))
+				self.bodies.append(Body(self.player.playerRect.center, self.player.theta))
 				self.player.carrying = False
 				self.player.speed = 5
 				self.cooldown = 10
