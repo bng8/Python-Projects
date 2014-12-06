@@ -147,6 +147,11 @@ while playing == True:
 	#update display
 	pygame.display.flip()
 
+	if level.gameOver == 1:
+		level = levelFileReader("Levels/level1")
+	elif level.gameOver == 2:
+		pass
+
 
 	'''
 	#print out time remaning/sec
