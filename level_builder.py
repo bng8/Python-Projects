@@ -1,11 +1,12 @@
 import pygame
 import time
 import astar
+from safe import Safe
 from body import Body
 
 class LevelBuilder():
 	
-	def __init__(self, floor_img, walls, guards, player):
+	def __init__(self, floor_img, walls, guards, player, safes):
 		self.walls = walls
 		self.floor_img = floor_img
 		self.guards = guards
@@ -18,6 +19,8 @@ class LevelBuilder():
 		self.wallImgHor = pygame.transform.rotate(self.wallImgVert, 90)
 		self.bodies = []
 		self.cooldown = 0
+		self.safes = safes
+
 
 	def update(self, keys):
 		self.player.update(keys)
@@ -53,7 +56,6 @@ class LevelBuilder():
 			self.cooldown -= 1
 
 
-
 	def draw(self, screen):
 		screen.blit(self.floor_img, (0,0))
 
@@ -63,6 +65,11 @@ class LevelBuilder():
 		self.player.draw(screen)
 		for guard in self.guards:
 			guard.draw(screen)
+
+		for safe in self.safes:
+			safe.draw(screen)
+			if self.player.collisionRect.colliderect(safe.rect) and not safe.objectRetrieved:
+				safe.retrieveKey(screen)
 
 		x=0
 		
@@ -82,8 +89,15 @@ class LevelBuilder():
 			pygame.draw.rect(screen, (0, 0, 0), wall, 3)
 
 		
-			#pygame.draw.rect(screen, (51,51,51), wall)
-			
+		#Drawing keys after safes are emptied
+		keyImg = pygame.image.load("res/key.png").convert_alpha()
+		x = 0
+		for safe in self.safes:
+			if safe.objectRetrieved:
+				screen.blit(keyImg,(875+x, 0))
+				x+=50
+
+	
 	def getRectGrid(self):
 		"""Returns a 64x48 matrix of 0s and 1s, where 1s denote the presence of a wall"""
 		
