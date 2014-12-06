@@ -17,6 +17,7 @@ class LevelBuilder():
 		self.wallImgVert= pygame.image.load("res/wall_vertical.jpg").convert_alpha()
 		self.wallImgHor = pygame.transform.rotate(self.wallImgVert, 90)
 		self.bodies = []
+		self.cooldown = 0
 
 	def update(self, keys):
 		self.player.update(keys)
@@ -33,17 +34,23 @@ class LevelBuilder():
 				self.bodies.append(Body(tmp.pos, tmp.theta))
 				break
 
-		if self.player.carrying and not keys["SPACE"]:
-			self.bodies.append(Body(self.player.playerRect.center, 0))
-			self.player.carrying = False
-			self.player.speed = 5
-		else:
-			for i, body in enumerate(self.bodies):
-				if not self.player.carrying and self.player.playerRect.colliderect(body.rect) and keys["SPACE"]:
-					self.player.attacking = False
-					self.player.carrying = True
-					self.player.speed = 3
-					self.bodies.pop(i)
+		if self.cooldown == 0:
+			if self.player.carrying and keys["SPACE"]:
+				self.bodies.append(Body(self.player.playerRect.center, 0))
+				self.player.carrying = False
+				self.player.speed = 5
+				self.cooldown = 10
+			else:
+				for i, body in enumerate(self.bodies):
+					if not self.player.carrying and self.player.playerRect.colliderect(body.rect) and keys["SPACE"]:
+						self.player.attacking = False
+						self.player.carrying = True
+						self.player.speed = 3
+						self.bodies.pop(i)
+						self.cooldown = 10
+
+		if self.cooldown > 0:
+			self.cooldown -= 1
 
 
 
