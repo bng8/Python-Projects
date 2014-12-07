@@ -2,17 +2,18 @@ import pygame
 import time
 import sys
 from menu import Menu
+from instructions import Instructions
 
 class MenuHandler:
 
 	def __init__(self):
 		self.PLAY_STATE = 3
-		self.INSTRUCTIONS_STATE = 2
+		self.INSTRUCTIONS_STATE = 1
 		self.CREDITS_STATE = 1
 		self.MENU_STATE = 0
 
-		self.menus = [Menu(self)]
-		self.curState = self.MENU_STATE
+		self.menus = [Menu(self), Instructions(self)]
+		self.curState = self.INSTRUCTIONS_STATE
 
 	def draw(self, screen):
 		self.menus[self.curState].draw(screen)
