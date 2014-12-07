@@ -23,20 +23,23 @@ import sys
 class Menu:
     def __init__(self, handler):
         self.size = (1024,768)
-        self.bgImg = pygame.image.load("res/menu-bg.jpg").convert_alpha()
-        playIcon = pygame.image.load("res/play.png").convert_alpha()
-        instructionsIcon = pygame.image.load("res/instructions.png").convert_alpha()
-        creditsIcon = pygame.image.load("res/credits.png").convert_alpha()
+        self.title = pygame.image.load("res/211title.png").convert_alpha()
+        self.bgImg = pygame.image.load("res/menubg.png").convert_alpha()
+        playIcon = pygame.image.load("res/playicon.png").convert_alpha()
+        instructionsIcon = pygame.image.load("res/instructionsicon.png").convert_alpha()
+        creditsIcon = pygame.image.load("res/creditsicon.png").convert_alpha()
         self.icon_list = [playIcon, instructionsIcon, creditsIcon]
         pygame.font.init()
 
         self.handler = handler
 
+
+
         icon_rect_list = []
         x = 0
         for icon in self.icon_list:
             icon_rect = icon.get_rect()
-            icon_rect.x,icon_rect.y = (295+x,330)
+            icon_rect.x,icon_rect.y = (420,450+x)
             icon_rect_list.append(icon_rect)
 
         self.icon_rect_list = []
@@ -44,9 +47,9 @@ class Menu:
         x = 0
         for icon in self.icon_list:
             icon_rect = icon.get_rect()
-            icon_rect.x,icon_rect.y = (295 + x,330)
+            icon_rect.x,icon_rect.y = (420,450+x)
             self.icon_rect_list.append(icon_rect)
-            x+=150
+            x+=100
         
         self.font = pygame.font.SysFont('comicsansms', 16)
 
@@ -64,6 +67,7 @@ class Menu:
     def draw(self, screen):
         screen.fill((0, 0, 0))
         screen.blit(self.bgImg,(0,0))
+        screen.blit(self.title,(350,100))
 
         for i in range(len(self.icon_list)):
             screen.blit(self.icon_list[i], self.icon_rect_list[i])
