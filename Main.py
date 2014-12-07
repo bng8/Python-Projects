@@ -14,7 +14,7 @@ size = (1024, 768)
 xCenter, yCenter= size[0] / 2, size[1] / 2
 
 #initialize window
-screen = pygame.display.set_mode(size)
+screen = pygame.display.set_mode(size,pygame.SRCALPHA)
 
 FRAMES_PER_SECOND = 30
 TIME_PER_FRAME = 1.0 / 30
@@ -23,6 +23,31 @@ timeS = time.time()
 playing = True
 #bools for keys
 keys = {"W": False, "S" : False, "D" : False, "A" : False, "P" : False, "SPACE" : False}
+
+def outlinedText(text, font, colorIn, colorOut, width, alpha = 255, back = None, pos = (0, 0)):
+
+	textI = font.render(text, 1, colorIn)
+	textO = font.render(text, 1, colorOut)
+
+	newSurf = pygame.Surface((textI.get_size()[0] + width * 2, textI.get_size()[1] + width * 2))
+
+	if back:
+		newSurf.blit(back, pos)
+
+	newSurf.blit(textO, (0, 0))
+	newSurf.blit(textO, (width * 2, 0))
+	newSurf.blit(textO, (0, width * 2))
+	newSurf.blit(textO, (width * 2, width * 2))
+	newSurf.blit(textO, (width, 0))
+	newSurf.blit(textO, (width * 2, 2))
+	newSurf.blit(textO, (0, width))
+	newSurf.blit(textO, (width * 2, width))
+		
+	newSurf.blit(textI, (width, width))
+
+	newSurf.set_alpha(int(alpha))
+
+	return newSurf
 
 def levelFileReader(filename):
 	#variables
@@ -80,7 +105,7 @@ def levelFileReader(filename):
 	safes.append(Safe((700, 650)))
 
 	return LevelBuilder(pygame.image.load("res/background-img.jpg").convert_alpha(), levelRects, guards, player, safes)
-	
+
 
 pygame.event.set_grab(True)
 pygame.mouse.set_visible(False)
@@ -90,69 +115,100 @@ level= levelFileReader("Levels/level1")
 pygame.font.init()
 font = pygame.font.SysFont('timesnewroman', 100)
 pausedText = font.render("PAUSED", 1, (255,255,255))
-font2 = pygame.font.SysFont("timesnewroman        ", 36)
+font2 = pygame.font.SysFont("timesnewroman", 36)
 continueText = font2.render("Press spacebar to continue", 1, (255,255,255))
+font3 = pygame.font.SysFont('timesnewroman', 175)
+
+pygame.mixer.init()
+snd1 = pygame.mixer.Sound('tone2.wav')
+#snd2 = pygame.mixer.Sound('tone1.wav')
 
 timeSlept = 0
 timePStart = time.time()
+textInc = 0
+back = None
 #Main Game Loop
 while playing == True:
 	#get the time at start of this specific cycle of loop
 	time_start = time.time()
 	#check for key and mouse event
 	#Polling input
-	for event in pygame.event.get():
-		if event.type == pygame.QUIT:
-			sys.exit()
-		if event.type == pygame.KEYDOWN:
-			if event.key == pygame.K_ESCAPE:
-				playing = False
-			if event.key == pygame.K_w:
-				keys['W'] = True
-			if event.key == pygame.K_s:
-				keys['S'] = True
-			if event.key == pygame.K_a:
-				keys['A'] = True
-			if event.key == pygame.K_d:
-				keys['D'] = True
-			if event.key == pygame.K_p:
-				keys['P'] = not keys['P']
-			if event.key == pygame.K_SPACE:
-				keys['SPACE'] = True
-		if event.type == pygame.KEYUP:
-			if event.key == pygame.K_w:
-				keys['W'] = False
-			if event.key == pygame.K_s:
-				keys['S'] = False
-			if event.key == pygame.K_a:
-				keys['A'] = False
-			if event.key == pygame.K_d:
-				keys['D'] = False
-			if event.key == pygame.K_SPACE:
-				keys['SPACE'] = False
+	if level.gameOver == 0:
+		for event in pygame.event.get():
+			if event.type == pygame.QUIT:
+				sys.exit()
+			if event.type == pygame.KEYDOWN:
+				if event.key == pygame.K_ESCAPE:
+					playing = False
+				if event.key == pygame.K_w:
+					keys['W'] = True
+				if event.key == pygame.K_s:
+					keys['S'] = True
+				if event.key == pygame.K_a:
+					keys['A'] = True
+				if event.key == pygame.K_d:
+					keys['D'] = True
+				if event.key == pygame.K_p:
+					keys['P'] = not keys['P']
+				if event.key == pygame.K_SPACE:
+					keys['SPACE'] = True
+				if event.key == pygame.K_k:
+					snd2.play()
+				if event.key == pygame.K_l:
+					snd1.play()
+			if event.type == pygame.KEYUP:
+				if event.key == pygame.K_w:
+					keys['W'] = False
+				if event.key == pygame.K_s:
+					keys['S'] = False
+				if event.key == pygame.K_a:
+					keys['A'] = False
+				if event.key == pygame.K_d:
+					keys['D'] = False
+				if event.key == pygame.K_SPACE:
+					keys['SPACE'] = False
 
-	#update everything if not paused
-	if not keys['P']:
-		level.update(keys)
-			
-	#make screen black(erase screen)
-	screen.fill((0,0,0))
+		#update everything if not paused
+		if not keys['P']:
+			level.update(keys)
+				
+		#make screen black(erase screen)
+		screen.fill((0,0,0))
 
-	level.draw(screen)
+		level.draw(screen)
 
-	if keys['P']:
-		screen.blit(pausedText, (320,300))
-		screen.blit(continueText, (320 ,400))
+		if keys['P']:
+			screen.blit(outlinedText("PAUSED", font, (255 , 255, 255), (0,0,0), 2, 255, screen, (-320, -300)), (320,300))
+			screen.blit(outlinedText("Press spacebar to continue...", font2, (255 , 255, 255), (0,0,0), 2, 255, screen, (-320, -400)), (320 ,400))
 
-	#update display
-	pygame.display.flip()
+	elif level.gameOver == 1:
 
-	if level.gameOver == 1:
-		level = levelFileReader("Levels/level1")
+		if textInc == 0:
+			back = screen
+
+		textInc += .2
+		
+		if textInc > 24:
+			textInc = 0
+			level = levelFileReader("Levels/level1")
+
+		screen.blit(outlinedText("Game Over", font3, (255 , 0, 0), (0,0,0), 3, textInc, back, (-100, -100)), (100, 100))
+
 	elif level.gameOver == 2:
-		pass
 
+		if textInc == 0:
+			back = screen
 
+		textInc += .2
+
+		if textInc > 24:
+			textInc = 0
+			level = levelFileReader("Levels/level1")
+
+		screen.blit(outlinedText("Level", font3, (255 , 0, 0), (0,0,0), 3, textInc, back, (-350, -100)), (350, 100))
+		screen.blit(outlinedText("Complete", font3, (255 , 0, 0), (0,0,0), 3, textInc, back, (-200, -300)), (200, 300))
+
+	pygame.display.flip()
 	'''
 	#print out time remaning/sec
 	if time.time() - timePStart > 1:

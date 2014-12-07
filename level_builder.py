@@ -24,11 +24,9 @@ class LevelBuilder():
 		self.bodies = []
 		self.cooldown = 0
 		self.safes = safes
-		self.keyBoolList = [False] * len(self.safes)
+		self.keys = 0
 		self.keyImg = pygame.image.load("res/key.png").convert_alpha()
 		grd = self.getRectGrid()
-		for ele in grd:
-			print(ele)
 		self.gameOver = 0
 
 
@@ -57,6 +55,8 @@ class LevelBuilder():
 		for safe in self.safes:
 			if self.player.collisionRect.colliderect(safe.rect) and not safe.objectRetrieved and keys["SPACE"]:
 				safe.update()
+				if safe.objectRetrieved:
+					self.keys += 1
 				return
 			else:
 				safe.progress = 0
@@ -77,8 +77,8 @@ class LevelBuilder():
 						self.bodies.pop(i)
 						self.cooldown = 10
 
-		if self.keyBoolList.count(True) == len(self.keyBoolList) and self.player.playerRect.colliderect(self.doorRect):
-			self.gameOver = 1
+		if self.keys == len(self.safes) and self.player.playerRect.colliderect(self.doorRect):
+			self.gameOver = 2
 
 	def draw(self, screen):
 		screen.blit(self.floor_img, (0,0))
@@ -114,11 +114,10 @@ class LevelBuilder():
 		#Drawing keys after safes are emptied
 		keyImg = self.keyImg
 		x = 0
-		for i, safe in enumerate(self.safes):
-			if safe.objectRetrieved:
-				self.keyBoolList[i] = True
-				screen.blit(keyImg,(875+x, 0))
-				x+=50
+
+		for i in range(self.keys):
+			screen.blit(keyImg,(875+(50 * i), 0))
+
 
 		for safe in self.safes:
 			if not safe.objectRetrieved and self.player.collisionRect.colliderect(safe.rect):
