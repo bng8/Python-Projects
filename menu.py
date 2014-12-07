@@ -59,49 +59,28 @@ class Menu:
         pygame.mixer.music.play(-1)
 
     #Used for instructions/credit screen
-    def onMouseClick(self, screen, JPEG):
-        if pygame.mouse.get_pressed()[0]:
-            imgToDraw = pygame.image.load(JPEG)
-            screen.blit(imgToDraw,(58,450))
 
     def draw(self, screen):
         screen.fill((0, 0, 0))
         screen.blit(self.bgImg,(0,0))
-        screen.blit(self.title,(350,100))
+        screen.blit(self.title,(335,150))
 
         for i in range(len(self.icon_list)):
             screen.blit(self.icon_list[i], self.icon_rect_list[i])
         
         for i, icon in enumerate(self.icon_rect_list):
             if icon.collidepoint(pygame.mouse.get_pos()) and i == 0:
-                playIcon = pygame.image.load("res/play_highlighted.png")
-                screen.blit(playIcon, (295,330))
-                playGameTxt = self.font.render("Play Game", 1, (255,0,0))
-                screen.blit(playGameTxt, (320, 450))
-                pygame.mouse.set_cursor(*pygame.cursors.diamond)
                 if pygame.mouse.get_pressed()[0]:
                     pygame.mixer.music.fadeout(1500)
                     self.handler.curState = 3
                 break
 
             if icon.collidepoint(pygame.mouse.get_pos()) and i == 1:
-                instructionsIcon = pygame.image.load("res/instructions_highlighted.png")
-                screen.blit(instructionsIcon, (445,330))
-                instructionsTxt = self.font.render("Instructions", 1, (255,0,0))
-                screen.blit(instructionsTxt, (460, 450))
-                pygame.mouse.set_cursor(*pygame.cursors.diamond)
-                self.onMouseClick(screen, "res/instructions_box.jpg")
                 if pygame.mouse.get_pressed()[0]:
                     self.handler.curState = 3
                 break
 
             if icon.collidepoint(pygame.mouse.get_pos()) and i == 2:
-                creditsIcon = pygame.image.load("res/credits_highlighted.png")
-                screen.blit(creditsIcon,(595,330))
-                creditsTxt = self.font.render("Credits", 1, (255,0,0))
-                screen.blit(creditsTxt, (625, 450))
-                pygame.mouse.set_cursor(*pygame.cursors.diamond)
-                self.onMouseClick(screen, "res/credits_box.jpg")
                 if pygame.mouse.get_pressed()[0]:
                     self.handler.curState
                 break

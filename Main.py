@@ -119,10 +119,6 @@ font2 = pygame.font.SysFont("timesnewroman", 36)
 continueText = font2.render("Press spacebar to continue", 1, (255,255,255))
 font3 = pygame.font.SysFont('timesnewroman', 175)
 
-pygame.mixer.init()
-snd1 = pygame.mixer.Sound('tone2.wav')
-#snd2 = pygame.mixer.Sound('tone1.wav')
-
 timeSlept = 0
 timePStart = time.time()
 textInc = 0
@@ -152,10 +148,6 @@ while playing == True:
 					keys['P'] = not keys['P']
 				if event.key == pygame.K_SPACE:
 					keys['SPACE'] = True
-				if event.key == pygame.K_k:
-					snd2.play()
-				if event.key == pygame.K_l:
-					snd1.play()
 			if event.type == pygame.KEYUP:
 				if event.key == pygame.K_w:
 					keys['W'] = False
