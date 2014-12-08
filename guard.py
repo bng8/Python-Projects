@@ -381,7 +381,7 @@ class Guard:
 						self.path[i] = self.path[i][0] * 32, self.path[i][1] * 32
 
 		self.playerSeen = self.checkCollision(playerRect)
-		'''
+		
 		
 		if self.playerSeen and self.canWalkStraight(playerRect):
 			self.path = [playerRect.center]
@@ -405,7 +405,7 @@ class Guard:
 				self.mandate = True
 				self.initAStar()
 				break
-		'''
+		
 		
 		
 
