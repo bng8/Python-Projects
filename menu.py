@@ -55,7 +55,7 @@ class Menu:
 
         #This is if we want to add music. I suggest we use a more fitting song/sound
         #though (same thing applies for all the images I used)
-        pygame.mixer.music.load("res/Nas.wav")
+        pygame.mixer.music.load("res/Menu.wav")
         pygame.mixer.music.play(-1)
 
     #Used for instructions/credit screen
@@ -77,12 +77,12 @@ class Menu:
 
             if icon.collidepoint(pygame.mouse.get_pos()) and i == 1:
                 if pygame.mouse.get_pressed()[0]:
-                    self.handler.curState = 3
+                    self.handler.curState = 2
                 break
 
             if icon.collidepoint(pygame.mouse.get_pos()) and i == 2:
                 if pygame.mouse.get_pressed()[0]:
-                    self.handler.curState
+                    self.handler.curState = 1
                 break
 
     def update(self):
