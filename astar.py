@@ -100,6 +100,9 @@ class AStar:
 				childY = y + dy[i]
 
 				if not childX < 0 and not childX > len(self.grid) - 1 and not childY < 0 and not childY > len(self.grid[0]) - 1 and self.grid[childX][childY] != 1 and self.closedNodes[childX][childY] != 1:
+					if dy[i] != 0 and dy[i] != 0:
+						if self.grid[childX][y] == 1 or self.grid[x][childY] == 1:
+							continue
 					if i < 4:
 						childNode = Node(childX, childY, curNode, curNode.distance + 10, curNode.priority)
 					else:

@@ -179,6 +179,9 @@ while playing == True:
 
 		if textInc == 0:
 			back = screen
+			pygame.mixer.music.load("res/Dead.wav")
+			pygame.mixer.music.play(-1)
+
 
 		textInc += .2
 		
@@ -187,12 +190,12 @@ while playing == True:
 			level = levelFileReader("Levels/level1")
 
 		screen.blit(outlinedText("Game Over", font3, (255 , 0, 0), (0,0,0), 3, textInc, back, (-100, -100)), (100, 100))
-		#pygame.mixer.music.load("res/Dead.wav")
-		#pygame.mixer.music.play(-1)
 
 	elif level.gameOver == 2:
 
 		if textInc == 0:
+			pygame.mixer.music.load("res/Winning.wav")
+			pygame.mixer.music.play(1)
 			back = screen
 
 		textInc += .2
@@ -203,8 +206,6 @@ while playing == True:
 
 		screen.blit(outlinedText("Level", font3, (255 , 0, 0), (0,0,0), 3, textInc, back, (-350, -100)), (350, 100))
 		screen.blit(outlinedText("Complete", font3, (255 , 0, 0), (0,0,0), 3, textInc, back, (-200, -300)), (200, 300))
-		pygame.mixer.music.load("res/Winning.wav")
-		pygame.mixer.music.play(-1)
 	
 	pygame.display.flip()
 	'''

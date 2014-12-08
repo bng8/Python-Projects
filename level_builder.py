@@ -116,7 +116,7 @@ class LevelBuilder():
 		x = 0
 
 		for i in range(self.keys):
-			screen.blit(keyImg,(875+(50 * i), 0))
+			screen.blit(keyImg,(775+(60 * i), 0))
 
 
 		for safe in self.safes:
