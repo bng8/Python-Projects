@@ -21,7 +21,7 @@ class Node:
 		self.priority = priority
 	def updatePriority(self, dest):
 		#update priority of node based on heuristic
-		self.priority = round(self.distance + self.estimate(dest) * 10)
+		self.priority = round(self.distance + self.estimate(dest) * 5)
 	def __lt__(self, other):
 		return self.priority < other.priority
 	def estimate(self, dest):
@@ -58,7 +58,6 @@ class AStar:
 			startNode.x = 23
 		elif startNode.x < 0:
 			startNode.x = 1
-		print(startNode)
 		self.openNodes[startNode.x][startNode.y] = 0
 		self.closedNodes[startNode.x][startNode.y] = 1
 		self.notFound = True

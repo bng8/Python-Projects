@@ -9,12 +9,6 @@ def rot_center(image, rect, angle):
 	rot_rect = rot_image.get_rect(center=rect.center)
 	return rot_image,rot_rect
 
-def roundNum(num):
-	if num % 1 > .5:
-		return int(num)
-	else:
-		return math.ceil(num)
-
 class Triangle:
 	def __init__(self, pos1, pos2, pos3):
 		self.pos1 = pos1
@@ -268,8 +262,8 @@ class Guard:
 		return (p1[0] - p2[0], p1[1] - p2[1])
 
 
-	def checkCollision(self, playerRect):
-		point = playerRect.center
+	def checkCollision(self, rect):
+		point = rect.center
 		for tri in self.triangles:
 			v0 = self.vecSub(tri.pos2, tri.pos1)
 			v1 = self.vecSub(tri.pos3, tri.pos1)
@@ -336,8 +330,6 @@ class Guard:
 				tmp = self.path.pop(0)
 				if not self.pathFound:
 					self.path.append(tmp)
-		#	elif dirMove2[0] != 0 and dirMove2[1] != 0 and (dirMove[0] / dirMove2[0] < 0 or dirMove[1] / dirMove2[1] < 0):
-		#		self.pos = [self.path[0][0], self.path[0][1]]
 
 			self.x+=1
 			if self.x == 10:
@@ -369,33 +361,36 @@ class Guard:
 					self.pathFound = True
 					grd = self.level.getRectGrid()
 
-					#for ele in self.path:
-					#	grd[ele[0]][ele[1]] = 5
+					for ele in self.path:
+						grd[ele[0]][ele[1]] = 5
 
 					for i in range(len(self.path)):
 						self.path[i] = self.path[i][1], self.path[i][0]
 
-					#for ele in grd:
-					#	print(ele)
+					for ele in grd:
+						print(ele)
 
 					for i in range(len(self.path)):
 						self.path[i] = self.path[i][0] * 32, self.path[i][1] * 32
 
 		self.playerSeen = self.checkCollision(playerRect)
+
+		
 		if self.playerSeen and self.canWalkStraight(playerRect):
 			self.path = [playerRect.center]
+			self.startPoint = self.guardRect.center
 			pathFound = True
 		elif (self.playerSeen and not self.searching and not self.pathFound) or self.mandate:
 			self.searching = True
-			self.star.startPath((roundNum(self.guardRect.center[1] / 32), roundNum(self.guardRect.center[0] / 32)), (roundNum(playerRect.center[1] / 32), roundNum(playerRect.center[0] / 32)))
+			self.star.startPath((int(self.guardRect.center[1] / 32), int(self.guardRect.center[0] / 32)), (int(playerRect.center[1] / 32), int(playerRect.center[0] / 32)))
 
+		
 		if not self.playerSeen:
 			for body in bodies:
 				if self.checkCollision(body.rect):
 					self.searching = True
-					self.star.startPath((roundNum(self.guardRect.center[1] / 32), roundNum(self.guardRect.center[0] / 32)), (roundNum(body.rect.center[1] / 32), roundNum(body.rect.center[0] / 32)))
-					#self.star.startPath((roundNum(self.guardRect.center[1] / 16), roundNum(self.guardRect.center[0] / 16)), (roundNum(body.rect.center[1] / 16), roundNum(body.rect.center[0] / 16)))
-
+					self.star.startPath((int(self.guardRect.center[1] / 32), int(self.guardRect.center[0] / 32)), (int(body.rect.center[1] / 32), int(body.rect.center[0] / 32)))
+		
 		
 		for wall in self.level.walls:
 			if self.collisionRect.colliderect(wall):
@@ -403,6 +398,7 @@ class Guard:
 				self.mandate = True
 				self.initAStar()
 				break
+		
 		
 
 		
