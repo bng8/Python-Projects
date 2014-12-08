@@ -1,4 +1,5 @@
 import pygame
+import random
 import time
 import astar
 from safe import Safe
@@ -6,9 +7,13 @@ from body import Body
 
 class LevelBuilder():
 	
+
 	def __init__(self, floor_img, walls, guards, player, safes, door_coordinates, door_rotation):
 		self.walls = walls
-		self.floor_img = floor_img
+		self.floorList = [pygame.image.load("res/background-img.jpg").convert_alpha(), pygame.image.load("res/background-img2.jpg").convert_alpha(),
+		pygame.image.load("res/background-img3.jpg").convert_alpha(),pygame.image.load("res/background-img4.jpg").convert_alpha(),
+		pygame.image.load("res/background-img5.jpg").convert_alpha()]
+		self.floor_img = random.choice(self.floorList)
 		self.guards = guards
 		for i in range(len(self.guards)):
 			self.guards[i].level = self
@@ -23,8 +28,9 @@ class LevelBuilder():
 		self.doorRect = self.doorRect.move(self.door_coordinates[0], self.door_coordinates[1])
 		print(self.doorRect.center)
 		self.player.level = self
-		self.wallImgVert= pygame.image.load("res/wall_vertical.jpg").convert_alpha()
-		self.wallImgHor = pygame.transform.rotate(self.wallImgVert, 90)
+		self.wallImgList = [pygame.image.load("res/wall_horizontal.jpg").convert_alpha(), pygame.image.load("res/wall_horizontal2.jpg").convert_alpha()]
+		self.wallImgHor= random.choice(self.wallImgList)
+		self.wallImgVert = pygame.transform.rotate(self.wallImgHor, 90)
 		self.bodies = []
 		self.cooldown = 0
 		self.safes = safes
