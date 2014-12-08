@@ -112,12 +112,14 @@ pygame.mouse.set_visible(False)
 
 level= levelFileReader("Levels/level1")
 
-pygame.font.init()
+pygame.init()
 font = pygame.font.SysFont('timesnewroman', 100)
 pausedText = font.render("PAUSED", 1, (255,255,255))
 font2 = pygame.font.SysFont("timesnewroman", 36)
 continueText = font2.render("Press spacebar to continue", 1, (255,255,255))
 font3 = pygame.font.SysFont('timesnewroman', 175)
+pygame.mixer.music.load("res/Background.wav")
+pygame.mixer.music.play(-1)
 
 timeSlept = 0
 timePStart = time.time()
@@ -185,6 +187,8 @@ while playing == True:
 			level = levelFileReader("Levels/level1")
 
 		screen.blit(outlinedText("Game Over", font3, (255 , 0, 0), (0,0,0), 3, textInc, back, (-100, -100)), (100, 100))
+		#pygame.mixer.music.load("res/Dead.wav")
+		#pygame.mixer.music.play(-1)
 
 	elif level.gameOver == 2:
 
@@ -199,7 +203,9 @@ while playing == True:
 
 		screen.blit(outlinedText("Level", font3, (255 , 0, 0), (0,0,0), 3, textInc, back, (-350, -100)), (350, 100))
 		screen.blit(outlinedText("Complete", font3, (255 , 0, 0), (0,0,0), 3, textInc, back, (-200, -300)), (200, 300))
-
+		#pygame.mixer.music.load("res/Winning.wav")
+		#pygame.mixer.music.play(-1)
+	
 	pygame.display.flip()
 	'''
 	#print out time remaning/sec
