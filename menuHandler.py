@@ -3,16 +3,17 @@ import time
 import sys
 from menu import Menu
 from instructions import Instructions
+from credits import Credits
 
 class MenuHandler:
 
 	def __init__(self):
 		self.PLAY_STATE = 3
-		self.INSTRUCTIONS_STATE = 1
+		self.INSTRUCTIONS_STATE = 2
 		self.CREDITS_STATE = 1
 		self.MENU_STATE = 0
 
-		self.menus = [Menu(self), Instructions(self)]
+		self.menus = [Menu(self), Credits(self), Instructions(self)]
 		self.curState = self.MENU_STATE
 
 	def draw(self, screen):

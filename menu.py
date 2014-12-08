@@ -77,12 +77,12 @@ class Menu:
 
             if icon.collidepoint(pygame.mouse.get_pos()) and i == 1:
                 if pygame.mouse.get_pressed()[0]:
-                    self.handler.curState = 3
+                    self.handler.curState = 2
                 break
 
             if icon.collidepoint(pygame.mouse.get_pos()) and i == 2:
                 if pygame.mouse.get_pressed()[0]:
-                    self.handler.curState
+                    self.handler.curState = 1
                 break
 
     def update(self):
