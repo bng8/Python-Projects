@@ -104,7 +104,7 @@ def levelFileReader(filename):
 	safes.append(Safe((750, 200)))
 	safes.append(Safe((700, 650)))
 
-	return LevelBuilder(pygame.image.load("res/background-img.jpg").convert_alpha(), levelRects, guards, player, safes)
+	return LevelBuilder(levelRects, guards, player, safes)
 
 
 pygame.event.set_grab(True)
