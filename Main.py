@@ -203,8 +203,8 @@ while playing == True:
 
 		screen.blit(outlinedText("Level", font3, (255 , 0, 0), (0,0,0), 3, textInc, back, (-350, -100)), (350, 100))
 		screen.blit(outlinedText("Complete", font3, (255 , 0, 0), (0,0,0), 3, textInc, back, (-200, -300)), (200, 300))
-		#pygame.mixer.music.load("res/Winning.wav")
-		#pygame.mixer.music.play(-1)
+		pygame.mixer.music.load("res/Winning.wav")
+		pygame.mixer.music.play(-1)
 	
 	pygame.display.flip()
 	'''
