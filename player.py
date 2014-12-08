@@ -21,7 +21,7 @@ class Player:
 		self.playerRect = self.img[0].get_rect()
 		self.pos = pos
 		self.playerRect = self.playerRect.move(pos[0], pos[1])
-		self.speed = speed
+		self.speedO = speed
 		self.theta = 0
 		self.level = level
 		self.attacking = False
@@ -74,6 +74,12 @@ class Player:
 		self.theta = round(theta)
 
 		#check what keys/buttons are pressed
+		if keys["R"] and not self.carrying and not self.attacking:
+			self.speed = self.speedO + 2
+		elif self.carrying:
+			self.speed = self.speedO - 2
+		else:
+			self.speed = self.speedO 
 		if keys["W"]:
 			self.standing = False
 			deltaF = self.speed
@@ -89,7 +95,7 @@ class Player:
 			deltaF = -self.speed
 		if keys["D"]:
 			deltaS = self.speed
-		if pygame.mouse.get_pressed()[0]:
+		if pygame.mouse.get_pressed()[0] and not self.carrying:
 			self.attacking = True
 		else:
 			self.attacking = False

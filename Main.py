@@ -22,7 +22,7 @@ time_start = 0
 timeS = time.time()
 playing = True
 #bools for keys
-keys = {"W": False, "S" : False, "D" : False, "A" : False, "P" : False, "SPACE" : False}
+keys = {"W": False, "S" : False, "D" : False, "A" : False, "P" : False, "SPACE" : False, "R" : False}
 
 def outlinedText(text, font, colorIn, colorOut, width, alpha = 255, back = None, pos = (0, 0)):
 
@@ -59,6 +59,7 @@ def levelFileReader(filename):
 	guards = []
 	safes = []
 
+
 	#open file
 	level_file = open(filename + '.txt')
 	#read file
@@ -67,21 +68,38 @@ def levelFileReader(filename):
 	#close file
 	level_file.close()
 	
-	player = Player((612, 348), 5, None)
-
 	#taking the string and breaking it up at the guard into the rect info and the guard info
+	door_line = level_str.split('-')[0].split('\n')[0]
+	player_line = level_str.split('-')[0].split('\n')[1]
+	level_str = level_str.split('-')[1]
 	level_list = level_str.split('Guard:')
-	rect_list = level_list[0].split('\n')[:-1]
+	safe_list = level_list[0].split('Safes:')[1].split('\n')[:-1]
+	rect_list = level_list[0].split('Safes:')[0].split('\n')[:-1]
 	#breaking up the info for the separate rect if then appending new rects for each line
+	doorsplit = door_line.split(',')
+	for ele in doorsplit:
+		ele = ele.strip()
+	door_coordinate = (int(doorsplit[0]),int(doorsplit[1]))
+	door_rotation = int(doorsplit[2])
+	playersplit = player_line.split(',')
+	for char in playersplit:
+		char = char.strip()
+	player = Player((int(playersplit[0]),int(playersplit[1])), int(playersplit[2]), None)	
+	safe_list = safe_list[1:]
+	for line in safe_list:
+		coord = line.split(',')
+		safes.append(Safe((int(coord[0].strip()),int(coord[1].strip()))))
+	rect_list=rect_list[1:]
 	for elm in rect_list:
 		points = elm.split(',')
 		for i in range(len(points)):
 			points[i] = int(points[i])
 		levelRects.append(pygame.Rect((points[0], points[1], points[2], points[3])))
 
-	#prepping the guard info
+	#prepping the guard infow
 	guard_lines = level_list[1].split('\n')[1:]
 	speed = guard_lines[0] #first line
+	print("hello",speed)
 	rang = guard_lines[1] #second line
 	fov = guard_lines[2] #third line
 	#putting the paths into an array
@@ -99,27 +117,23 @@ def levelFileReader(filename):
 	levelRects.append(pygame.Rect(0, 32, 32, size[1] - 32))
 	levelRects.append(pygame.Rect(size[0] - 32, 32, 32, size[1] - 32))
 
-	##hard coded, safes will be in txt file
-	safes.append(Safe((50, 50)))
-	safes.append(Safe((750, 200)))
-	safes.append(Safe((700, 650)))
-
-	return LevelBuilder(levelRects, guards, player, safes)
+	pygame.mixer.music.load("res/Background.wav")
+	pygame.mixer.music.play(-1)
+	return LevelBuilder(pygame.image.load("res/background-img.jpg").convert_alpha(), levelRects, guards, player, safes, door_coordinate, door_rotation)
 
 
 pygame.event.set_grab(True)
 pygame.mouse.set_visible(False)
 
-level= levelFileReader("Levels/level1")
-
 pygame.init()
+
+level= levelFileReader("Levels/level4")
 font = pygame.font.SysFont('timesnewroman', 100)
 pausedText = font.render("PAUSED", 1, (255,255,255))
 font2 = pygame.font.SysFont("timesnewroman", 36)
 continueText = font2.render("Press spacebar to continue", 1, (255,255,255))
 font3 = pygame.font.SysFont('timesnewroman', 175)
-pygame.mixer.music.load("res/Background.wav")
-pygame.mixer.music.play(-1)
+
 
 timeSlept = 0
 timePStart = time.time()
@@ -146,6 +160,8 @@ while playing == True:
 					keys['A'] = True
 				if event.key == pygame.K_d:
 					keys['D'] = True
+				if event.key == pygame.K_r:
+					keys['R'] = True
 				if event.key == pygame.K_p:
 					keys['P'] = not keys['P']
 				if event.key == pygame.K_SPACE:
@@ -159,6 +175,8 @@ while playing == True:
 					keys['A'] = False
 				if event.key == pygame.K_d:
 					keys['D'] = False
+				if event.key == pygame.K_r:
+					keys['R'] = False
 				if event.key == pygame.K_SPACE:
 					keys['SPACE'] = False
 
@@ -173,7 +191,7 @@ while playing == True:
 
 		if keys['P']:
 			screen.blit(outlinedText("PAUSED", font, (255 , 255, 255), (0,0,0), 2, 255, screen, (-320, -300)), (320,300))
-			screen.blit(outlinedText("Press spacebar to continue...", font2, (255 , 255, 255), (0,0,0), 2, 255, screen, (-320, -400)), (320 ,400))
+			screen.blit(outlinedText("Press P to continue...", font2, (255 , 255, 255), (0,0,0), 2, 255, screen, (-360, -400)), (360 ,400))
 
 	elif level.gameOver == 1:
 
@@ -187,7 +205,7 @@ while playing == True:
 		
 		if textInc > 24:
 			textInc = 0
-			level = levelFileReader("Levels/level1")
+			level = levelFileReader("Levels/level2")
 
 		screen.blit(outlinedText("Game Over", font3, (255 , 0, 0), (0,0,0), 3, textInc, back, (-100, -100)), (100, 100))
 

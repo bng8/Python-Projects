@@ -7,7 +7,8 @@ from body import Body
 
 class LevelBuilder():
 	
-	def __init__(self, walls, guards, player, safes):
+
+	def __init__(self, floor_img, walls, guards, player, safes, door_coordinates, door_rotation):
 		self.walls = walls
 		self.floorList = [pygame.image.load("res/background-img.jpg").convert_alpha(), pygame.image.load("res/background-img2.jpg").convert_alpha(),
 		pygame.image.load("res/background-img3.jpg").convert_alpha(),pygame.image.load("res/background-img4.jpg").convert_alpha(),
@@ -19,9 +20,13 @@ class LevelBuilder():
 			self.guards[i].initAStar()
 		self.player = player	
 		self.door_img = pygame.image.load("res/door.png").convert_alpha()
-		self.door_coordinates = (128, 0)
+		self.door_rotation = door_rotation
+		if self.door_rotation == 1:
+			self.door_img = pygame.transform.rotate(self.door_img, 90)
+		self.door_coordinates = door_coordinates
 		self.doorRect = self.door_img.get_rect()
-		self.doorRect.center = (self.door_coordinates[0]-20, self.door_coordinates[0]-80)
+		self.doorRect = self.doorRect.move(self.door_coordinates[0], self.door_coordinates[1])
+		print(self.doorRect.center)
 		self.player.level = self
 		self.wallImgList = [pygame.image.load("res/wall_horizontal.jpg").convert_alpha(), pygame.image.load("res/wall_horizontal2.jpg").convert_alpha()]
 		self.wallImgHor= random.choice(self.wallImgList)
@@ -45,8 +50,9 @@ class LevelBuilder():
 			#if rects collide(will change when we have attack animation)
 			if self.player.collisionRect.colliderect(self.guards[i].guardRect):
 				if self.guards[i].playerSeen:
-					#self.gameOver = 1
-					pass
+					self.gameOver = 1
+					
+					
 				if self.player.attacking and not self.guards[i].playerSeen:
 					#get the guard/remove it
 					tmp = self.guards.pop(i)
@@ -71,18 +77,18 @@ class LevelBuilder():
 			if self.player.carrying and self.cooldown == 0:
 				self.bodies.append(Body(self.player.playerRect.center, self.player.theta))
 				self.player.carrying = False
-				self.player.speed = 5
 				self.cooldown = 10
 			else:
 				for i, body in enumerate(self.bodies):
 					if not self.player.carrying and self.player.playerRect.colliderect(body.rect) and self.cooldown == 0:
 						self.player.attacking = False
 						self.player.carrying = True
-						self.player.speed = 3
 						self.bodies.pop(i)
 						self.cooldown = 10
 
+		print(self.keys, " - ", len(self.safes))
 		if self.keys == len(self.safes) and self.player.playerRect.colliderect(self.doorRect):
+			print("hello")
 			self.gameOver = 2
 
 	def draw(self, screen):
