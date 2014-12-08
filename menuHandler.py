@@ -13,7 +13,7 @@ class MenuHandler:
 		self.MENU_STATE = 0
 
 		self.menus = [Menu(self), Instructions(self)]
-		self.curState = self.INSTRUCTIONS_STATE
+		self.curState = self.MENU_STATE
 
 	def draw(self, screen):
 		self.menus[self.curState].draw(screen)

@@ -55,7 +55,7 @@ class Menu:
 
         #This is if we want to add music. I suggest we use a more fitting song/sound
         #though (same thing applies for all the images I used)
-        pygame.mixer.music.load("res/Nas.wav")
+        pygame.mixer.music.load("res/Menu.wav")
         pygame.mixer.music.play(-1)
 
     #Used for instructions/credit screen
