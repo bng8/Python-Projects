@@ -182,11 +182,14 @@ class Guard:
 
 		pygame.draw.rect(screen, (255, 0, 0), self.collisionRect,1)
 
+		'''
 		points = [self.guardRect.center]
 		for tri in self.triangles:
 			points.append(tri.pos3)
 			points.append(tri.pos1)
 		pygame.gfxdraw.filled_polygon(screen, points, (255,255, 0, 128))
+		'''
+		[ray.draw(screen, (0, 255, 0)) for ray in self.rays]
 
 
 	def generateRays(self):
@@ -202,7 +205,7 @@ class Guard:
 			for wall in self.level.walls:
 				#create a line from the guard to a wall corner
 				#top left corner
-				line = Line(self.guardRect.center, (wall.x, wall.y))
+				line = Line(self.guardRect.center, (wall.x + 1, wall.y + 1))
 				#get angle between that line and the line of movement(dot product rule)
 				if -1 <= (dirVec[0] * line.distX + (dirVec[1] * line.distY)) / line.mag <= 1:
 					ang = math.acos((dirVec[0] * line.distX + (dirVec[1] * line.distY)) / line.mag)
@@ -212,7 +215,7 @@ class Guard:
 						self.rays.append(line.nearestIntersection(self.level))
 
 				#top right corner
-				line = Line(self.guardRect.center, (wall.x + wall.width, wall.y))
+				line = Line(self.guardRect.center, (wall.x + wall.width - 1, wall.y + 1))
 				if -1 <= (dirVec[0] * line.distX + (dirVec[1] * line.distY)) / line.mag <= 1:
 					ang = math.acos((dirVec[0] * line.distX + (dirVec[1] * line.distY)) / line.mag)
 					ang = ang * 180 / math.pi
@@ -221,7 +224,7 @@ class Guard:
 						self.rays.append(line.nearestIntersection(self.level))
 
 				#bottom left
-				line = Line(self.guardRect.center, (wall.x, wall.y + wall.height))
+				line = Line(self.guardRect.center, (wall.x + 1, wall.y + wall.height - 1))
 				if -1 <= (dirVec[0] * line.distX + (dirVec[1] * line.distY)) / line.mag <= 1:
 					ang = math.acos((dirVec[0] * line.distX + (dirVec[1] * line.distY)) / line.mag)
 					ang = ang * 180 / math.pi
@@ -230,7 +233,7 @@ class Guard:
 						self.rays.append(line.nearestIntersection(self.level))
 				
 				#bottom right
-				line = Line(self.guardRect.center, (wall.x + wall.width, wall.y + wall.height))
+				line = Line(self.guardRect.center, (wall.x + wall.width - 1, wall.y + wall.height - 1))
 				if -1 <= (dirVec[0] * line.distX + (dirVec[1] * line.distY)) / line.mag <= 1:
 					ang = math.acos((dirVec[0] * line.distX + (dirVec[1] * line.distY)) / line.mag)
 					ang = ang * 180 / math.pi
@@ -378,7 +381,7 @@ class Guard:
 						self.path[i] = self.path[i][0] * 32, self.path[i][1] * 32
 
 		self.playerSeen = self.checkCollision(playerRect)
-
+		'''
 		
 		if self.playerSeen and self.canWalkStraight(playerRect):
 			self.path = [playerRect.center]
@@ -402,6 +405,7 @@ class Guard:
 				self.mandate = True
 				self.initAStar()
 				break
+		'''
 		
 		
 
