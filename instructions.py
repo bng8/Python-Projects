@@ -5,6 +5,7 @@ class Instructions:
 		self.handler = handler
 		self.title = pygame.transform.scale2x(pygame.image.load("res/211title.png")).convert_alpha()
 		self.bgImg = pygame.image.load("res/menubg.png").convert_alpha()
+		self.back = pygame.image.load("res/backicon.png")
 
 		alpha = 30
 		self.title.fill((255, 255, 255, alpha), None, pygame.BLEND_RGBA_MULT)
@@ -29,6 +30,7 @@ class Instructions:
 		screen.blit(self.bgImg, (0, 0))
 		screen.blit(self.title, (180, 180))
 		screen.blit(self.instructions, (380,50))
+		screen.blit(self.back, (400, 600))
 
 		y = 175
 		for ele in self.strings:
@@ -39,10 +41,8 @@ class Instructions:
 
 	def update(self):
 		
-		#pseudo code
-		'''
-		rect = self.backButton.get_rect().move(self.poisitionOfButton)
+		rect = self.back.get_rect().move(400,600)
 		if rect.collidepoint(pygame.mouse.get_pos()):
-			if pygame.getMousePressed()[0]:
-				self.handler.curState = self.handler.menuState
-		'''
+			if pygame.mouse.get_pressed()[0]:
+				self.handler.curState = 0
+		

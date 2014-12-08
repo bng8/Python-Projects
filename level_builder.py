@@ -25,7 +25,7 @@ class LevelBuilder():
 		self.cooldown = 0
 		self.safes = safes
 		self.keys = 0
-		self.keyImg = pygame.image.load("res/key.png").convert_alpha()
+		self.keyImg = pygame.image.load("res/goldbar.png").convert_alpha()
 		grd = self.getRectGrid()
 		self.gameOver = 0
 
