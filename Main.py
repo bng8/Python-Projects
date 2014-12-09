@@ -116,7 +116,6 @@ def levelFileReader(filename):
 	levelRects.append(pygame.Rect(0,size[1] - 32,size[0], 32))
 	levelRects.append(pygame.Rect(0, 32, 32, size[1] - 32))
 	levelRects.append(pygame.Rect(size[0] - 32, 32, 32, size[1] - 32))
-
 	pygame.mixer.music.load("res/Background.wav")
 	pygame.mixer.music.play(-1)
 	return LevelBuilder(pygame.image.load("res/background-img.jpg").convert_alpha(), levelRects, guards, player, safes, door_coordinate, door_rotation)
