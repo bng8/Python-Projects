@@ -9,12 +9,6 @@ def rot_center(image, rect, angle):
 	rot_rect = rot_image.get_rect(center=rect.center)
 	return rot_image,rot_rect
 
-def tupleSub(t1, t2):
-	return math.fabs(t1[0] - t2[0] + t1[0] + t2[0])
-
-def euc(a, b):
-	return ((a[0] - b[0]) ** 2 + (a[1] - b[1]) ** 2) ** (1 / 2)
-
 class Triangle:
 	def __init__(self, pos1, pos2, pos3):
 		self.pos1 = pos1
@@ -28,21 +22,15 @@ class Triangle:
 
 class Line:
 	def __init__(self, posS,posE):
-		posE = [int(posE[0]), int(posE[1])]
 		self.startPos = posS
 		self.endPos = posE
 		self.distX = posE[0] - posS[0]
 		self.distY = posE[1] - posS[1]
 		self.mag = (self.distX ** 2 + self.distY ** 2) ** ( 1/ 2)
-		self.color = (0, 255, 0)
 
-	def draw(self, screen):
+	def draw(self, screen, color):
 		#draw line
-		if self.color[2] == 255:
-			pygame.draw.line(screen, self.color, self.startPos, self.endPos)
-		else:
-			pygame.draw.line(screen, self.color, self.startPos, self.endPos)
-
+		pygame.draw.line(screen, color, self.startPos, self.endPos)
 
 	def __eq__(self, other):
 		if self.startPos[0] == other.startPos[0] and self.startPos[1] == other.startPos[1] and self.endPos[0] == other.endPos[0] and self.endPos[1] == other.endPos[1]:
@@ -50,14 +38,10 @@ class Line:
 		else:
 			return False
 
-	def __sub__(self, other):
-		return self.ensPos[0] - other.endPos[0] + self.endPos[1] - other.endPos[0]
-
-	def nearestIntersection(self, walls):
+	def nearestIntersection(self, level):
 		t1, t2 = 100, 100
 		#search for intersection of line and any wall
-
-		for wall in walls:
+		for wall in level.walls:
 			
 			wallX = wall.x
 			wallY = wall.y
@@ -65,13 +49,7 @@ class Line:
 			wallDY = 0
 			tmp = 0
 			tmp2 = 0
-
-			try:
-				if euc(self.startPos, wall.center) / self.mag > t1:
-					continue
-			except:
-				pass
-
+			
 			#top line segment of wall
 			#solve two equations for two unkowns of the the two vectors(ray and wall segment)
 			try:
@@ -204,15 +182,15 @@ class Guard:
 
 		pygame.draw.rect(screen, (255, 0, 0), self.collisionRect,1)
 
-		
+		'''
 		points = [self.guardRect.center]
 		for tri in self.triangles:
 			points.append(tri.pos3)
 			points.append(tri.pos1)
 		pygame.gfxdraw.filled_polygon(screen, points, (255,255, 0, 128))
+		'''
+		[ray.draw(screen, (0, 255, 0)) for ray in self.rays]
 
-		
-		#[ray.draw(screen) for ray in self.rays]
 
 	def generateRays(self):
 			#get the direction of movement
@@ -224,78 +202,49 @@ class Guard:
 			#dot product rule to get the angle between movement and angle to corner
 			#add ones that are in the field of view
 			#cut off the rays at any intersection 
-			blue = (0, 0, 255)
-			walls = sorted(self.level.walls, key = lambda x: euc(self.guardRect.center, x.center))
 			for wall in self.level.walls:
 				#create a line from the guard to a wall corner
 				#top left corner
-				curX = wall.x + 1
-				curY = wall.y + 1
-				line = Line(self.guardRect.center, (curX, curY))
+				line = Line(self.guardRect.center, (wall.x + 1, wall.y + 1))
 				#get angle between that line and the line of movement(dot product rule)
 				if -1 <= (dirVec[0] * line.distX + (dirVec[1] * line.distY)) / line.mag <= 1:
 					ang = math.acos((dirVec[0] * line.distX + (dirVec[1] * line.distY)) / line.mag)
 					ang = ang * 180 / math.pi
 					ang = math.fabs(ang)
 					if ang < self.fov:
-						tmp = line.nearestIntersection(walls)
-						self.rays.append(tmp)
-						line = Line(self.guardRect.center, (curX - 1, curY - 1))
-						line2 = line.nearestIntersection(walls)
-						if line2.mag - line.mag > 3:
-							self.rays.append(line2)
+						self.rays.append(line.nearestIntersection(self.level))
 
 				#top right corner
-				curX = wall.x + wall.width - 1
-				curY = wall.y + 1
-				line = Line(self.guardRect.center, (curX, curY))
+				line = Line(self.guardRect.center, (wall.x + wall.width - 1, wall.y + 1))
 				if -1 <= (dirVec[0] * line.distX + (dirVec[1] * line.distY)) / line.mag <= 1:
 					ang = math.acos((dirVec[0] * line.distX + (dirVec[1] * line.distY)) / line.mag)
 					ang = ang * 180 / math.pi
 					ang = math.fabs(ang)
 					if ang < self.fov:
-						tmp = line.nearestIntersection(walls)
-						self.rays.append(tmp)
-						line = Line(self.guardRect.center, (curX + 1, curY - 1))
-						line2 = line.nearestIntersection(walls)
-						if line2.mag - line.mag > 3:
-							self.rays.append(line2)
+						self.rays.append(line.nearestIntersection(self.level))
 
 				#bottom left
-				curX = wall.x + 1
-				curY = wall.y + wall.height - 1
 				line = Line(self.guardRect.center, (wall.x + 1, wall.y + wall.height - 1))
 				if -1 <= (dirVec[0] * line.distX + (dirVec[1] * line.distY)) / line.mag <= 1:
 					ang = math.acos((dirVec[0] * line.distX + (dirVec[1] * line.distY)) / line.mag)
 					ang = ang * 180 / math.pi
 					ang = math.fabs(ang)
 					if ang < self.fov:
-						tmp = line.nearestIntersection(walls)
-						self.rays.append(tmp)
-						line = Line(self.guardRect.center, (curX - 1, curY + 1))
-						line2 = line.nearestIntersection(walls)
-						if line2.mag - line.mag > 3:
-							self.rays.append(line2)
+						self.rays.append(line.nearestIntersection(self.level))
 				
 				#bottom right
-				curX = wall.x + wall.width - 1
-				curY = wall.y + wall.height - 1
-				line = Line(self.guardRect.center, (curX, curY))
+				line = Line(self.guardRect.center, (wall.x + wall.width - 1, wall.y + wall.height - 1))
 				if -1 <= (dirVec[0] * line.distX + (dirVec[1] * line.distY)) / line.mag <= 1:
 					ang = math.acos((dirVec[0] * line.distX + (dirVec[1] * line.distY)) / line.mag)
 					ang = ang * 180 / math.pi
 					ang = math.fabs(ang)
 					if ang < self.fov:
-						tmp = line.nearestIntersection(walls)
-						self.rays.append(tmp)
-						line = Line(self.guardRect.center, (curX + 1, curY + 1))
-						line2 = line.nearestIntersection(walls)
-						if line2.mag - line.mag > 3:
-							self.rays.append(line2)
-
+						self.rays.append(line.nearestIntersection(self.level))
+		
 			#add rays at edge of field of view, and one in the center(case in which no walls are in view)
-			self.rays.append(Line(self.guardRect.center, (self.guardRect.center[0] - math.sin(math.radians(self.theta + self.fov)) * self.range, self.guardRect.center[1] - math.cos(math.radians(self.theta + self.fov)) * self.range)).nearestIntersection(walls))
-			self.rays.append(Line(self.guardRect.center, (self.guardRect.center[0] - math.sin(math.radians(self.theta - self.fov)) * self.range, self.guardRect.center[1] - math.cos(math.radians(self.theta - self.fov)) * self.range)).nearestIntersection(walls))
+			self.rays.append(Line(self.guardRect.center, (self.guardRect.center[0] - math.sin(math.radians(self.theta + self.fov)) * self.range, self.guardRect.center[1] - math.cos(math.radians(self.theta + self.fov)) * self.range)).nearestIntersection(self.level))
+			self.rays.append(Line(self.guardRect.center, (self.guardRect.center[0] - math.sin(math.radians(self.theta - self.fov)) * self.range, self.guardRect.center[1] - math.cos(math.radians(self.theta - self.fov)) * self.range)).nearestIntersection(self.level))
+			#self.rays.append(Line(self.guardRect.center, (self.guardRect.center[0] - math.sin(math.radians(self.theta)) * self.range, self.guardRect.center[1] - math.cos(math.radians(self.theta)) * self.range)).nearestIntersection(self.level))
 
 			#normalize all rays to a maximum length based on view range
 			for ray in self.rays:
@@ -340,8 +289,7 @@ class Guard:
 
 	def canWalkStraight(self, tarRect):
 		line = Line(self.guardRect.center, tarRect.center)
-		walls = sorted(self.level.walls, key = lambda x: euc(self.guardRect.center, x.center))
-		line2 = line.nearestIntersection(walls)
+		line2 = line.nearestIntersection(self.level)
 
 		if line2 == line or line2.mag > line.mag:
 			return True
@@ -398,7 +346,7 @@ class Guard:
 			self.collisionRect = pygame.Rect(self.pos[0], self.pos[1], 1, 1)
 
 		else:
-			self.theta += 10
+			self.theta += 2
 			if not self.standing:
 				self.searching = False
 				self.pathFound = False
@@ -409,19 +357,28 @@ class Guard:
 		self.generateRays()
 
 		if self.searching and self.star.notFound:
-				self.pathTmp = self.star.pathFind(.05)
+				self.pathTmp = self.star.pathFind(.1)
 				path = []
 				if not self.star.notFound:
 					self.path = self.pathTmp
 					self.startPoint = self.guardRect.center
 					self.pathFound = True
+					#grd = self.level.getRectGrid()
+
+					#for ele in self.path:
+					#	grd[ele[0]][ele[1]] = 5
 
 					for i in range(len(self.path)):
 						self.path[i] = self.path[i][1], self.path[i][0]
 
+					#grd[self.star.start[0]][self.star.start[1]] = 7
+					#grd[self.star.goal[0]][self.star.goal[1]] = 7
+
+					#for ele in grd:
+					#	print(ele)
+
 					for i in range(len(self.path)):
 						self.path[i] = self.path[i][0] * 32, self.path[i][1] * 32
-
 
 		self.playerSeen = self.checkCollision(playerRect)
 		
