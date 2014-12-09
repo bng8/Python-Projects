@@ -126,7 +126,7 @@ pygame.mouse.set_visible(False)
 
 pygame.init()
 
-level= levelFileReader("Levels/level4")
+level= levelFileReader("Levels/level7")
 font = pygame.font.SysFont('timesnewroman', 100)
 pausedText = font.render("PAUSED", 1, (255,255,255))
 font2 = pygame.font.SysFont("timesnewroman", 36)
